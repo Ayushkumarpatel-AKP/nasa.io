@@ -43,6 +43,9 @@ const verificationActionSettings = {
   handleCodeInApp: false,
 };
 
+const firebaseSetupHelp =
+  "Firebase env vars are missing or not loaded. If this is local dev, restart Vite after editing .env. If this is Vercel, add the VITE_FIREBASE_* values in Project Settings > Environment Variables and redeploy.";
+
 function getAuthErrorMessage(error: unknown) {
   const code = (error as Partial<AuthError>)?.code;
 
@@ -145,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthError(
         firebaseInitError
           ? `Firebase initialization failed: ${firebaseInitError}`
-          : "Firebase is not configured. Add VITE_FIREBASE_* values in .env and restart dev server."
+          : firebaseSetupHelp
       );
       return;
     }
@@ -180,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerWithEmail = async (email: string, password: string) => {
     if (!auth || !isFirebaseConfigured) {
-      setAuthError("Firebase is not configured. Add VITE_FIREBASE_* values in .env.");
+      setAuthError(firebaseSetupHelp);
       setLoading(false);
       return;
     }
@@ -207,7 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!auth || !isFirebaseConfigured) {
-      setAuthError("Firebase is not configured. Add VITE_FIREBASE_* values in .env.");
+      setAuthError(firebaseSetupHelp);
       setLoading(false);
       return;
     }
