@@ -12,7 +12,7 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { auth, db, isFirebaseConfigured } from "../lib/firebase";
+import { auth, db, firebaseInitError, isFirebaseConfigured } from "../lib/firebase";
 
 type VerificationStatus = "unauthenticated" | "verified" | "unverified";
 
@@ -142,7 +142,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setIsAuthorized(false);
       setVerificationStatus("unauthenticated");
-      setAuthError("Firebase is not configured. Add VITE_FIREBASE_* values in .env and restart dev server.");
+      setAuthError(
+        firebaseInitError
+          ? `Firebase initialization failed: ${firebaseInitError}`
+          : "Firebase is not configured. Add VITE_FIREBASE_* values in .env and restart dev server."
+      );
       return;
     }
 

@@ -1,4 +1,4 @@
-import { FirebaseError, initializeApp } from "firebase/app";
+import { FirebaseError, getApp, getApps, initializeApp } from "firebase/app";
 import { Auth, getAuth } from "firebase/auth";
 import { Firestore, getFirestore } from "firebase/firestore";
 
@@ -17,14 +17,16 @@ const hasAllFirebaseConfig = Object.values(firebaseConfig).every(
 
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let firebaseInitError: string | null = null;
 
 if (hasAllFirebaseConfig) {
   try {
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
   } catch (error) {
     const firebaseError = error as FirebaseError;
+    firebaseInitError = firebaseError.message;
     console.error("Firebase initialization failed:", firebaseError.message);
   }
 } else {
@@ -33,4 +35,4 @@ if (hasAllFirebaseConfig) {
 
 export const isFirebaseConfigured = hasAllFirebaseConfig && !!auth && !!db;
 
-export { auth, db };
+export { auth, db, firebaseInitError };
