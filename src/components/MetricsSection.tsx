@@ -2,6 +2,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { linearRegression, forecast } from "../utils/predictionEngine";
 
+type MetricKey = "aqi" | "ozone" | "co2" | "ocean";
+
+type MetricInsight = {
+  key: MetricKey;
+  title: string;
+  subtitle: string;
+  current: string;
+  forecast: string;
+  delta: string;
+  confidence: string;
+  status: string;
+  summary: string;
+  recommendation: string;
+  accent: string;
+};
+
 /* ─────────────────────────── Historical Data ─────────────────────────────── */
 // CO₂ ppm — Mauna Loa Observatory  (Jan 2024 – Mar 2026, 27 months)
 const CO2_DATA = [
@@ -80,7 +96,7 @@ function aqiZoneLabel(v: number) {
   return { ...z, phrase: phrases[z.label] };
 }
 
-function AQICard({ historical, predicted, r2 }: { historical: number[]; predicted: number[]; r2: number }) {
+function AQICard({ historical, predicted, r2, onClick, selected }: { historical: number[]; predicted: number[]; r2: number; onClick?: () => void; selected?: boolean }) {
   const current  = historical[historical.length - 1];
   const pred3m   = predicted[predicted.length - 1];
   const zone     = aqiZoneLabel(current);
@@ -118,11 +134,17 @@ function AQICard({ historical, predicted, r2 }: { historical: number[]; predicte
   const pn = needle(predAngle, R - 14);
 
   return (
-    <div className="rounded-xl p-4 bg-black/25 border border-emerald-900/50 hover:border-emerald-700/60 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
+      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+    >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-sm font-semibold text-emerald-100" style={{ fontFamily: "Space Grotesk" }}>Air Quality Index</h3>
-          <p className="text-[10px] text-slate-500">Global composite avg</p>
+          <h3 className="text-sm font-semibold text-emerald-100 leading-tight" style={{ fontFamily: "Space Grotesk" }}>Air Quality Index</h3>
+          <p className="text-[10px] text-slate-500">Global air quality trend</p>
         </div>
         <span className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold`}
           style={{ color: zone.color, borderColor: zone.color + "60", background: zone.color + "18" }}>
@@ -131,7 +153,7 @@ function AQICard({ historical, predicted, r2 }: { historical: number[]; predicte
       </div>
 
       {/* Gauge */}
-      <svg viewBox="0 0 200 100" className="w-full" style={{ height: 90 }}>
+      <svg viewBox="0 0 200 100" className="w-full" style={{ height: 78 }}>
         {/* zone arcs (thick track) */}
         {zoneArcs.map((a, i) => (
           <path key={i} d={a.path} fill="none" stroke={a.color} strokeWidth="10" opacity="0.30"/>
@@ -171,15 +193,15 @@ function AQICard({ historical, predicted, r2 }: { historical: number[]; predicte
       </svg>
 
       {/* plain-English message */}
-      <p className="text-[11px] text-center font-medium" style={{ color: zone.color }}>{zone.phrase}</p>
+      <p className="text-[11px] text-center font-medium leading-snug" style={{ color: zone.color }}>{zone.phrase}</p>
 
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07]">
+      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07] text-center">
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Current</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Now</p>
           <p className="text-sm font-bold" style={{ color: zone.color }}>{Math.round(current)}</p>
         </div>
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Jun'26 forecast</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Forecast</p>
           <div className="flex items-baseline gap-1">
             <p className="text-sm font-bold text-slate-200">{Math.round(pred3m)}</p>
             <span className={`text-[9px] font-semibold ${pred3m > current ? "text-red-400" : "text-emerald-400"}`}>
@@ -188,7 +210,7 @@ function AQICard({ historical, predicted, r2 }: { historical: number[]; predicte
           </div>
         </div>
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Confidence</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Model</p>
           <p className={`text-sm font-bold ${confidence >= 90 ? "text-emerald-400" : "text-yellow-400"}`}>{confidence}%</p>
         </div>
       </div>
@@ -201,7 +223,7 @@ function AQICard({ historical, predicted, r2 }: { historical: number[]; predicte
 // Shows Earth + ozone shield ring health — very visual for non-experts
 const OZONE_HEALTHY = 340; // DU — healthy baseline
 
-function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predicted: number[]; r2: number }) {
+function OzoneCard({ historical, predicted, r2, onClick, selected }: { historical: number[]; predicted: number[]; r2: number; onClick?: () => void; selected?: boolean }) {
   const current  = historical[historical.length - 1];
   const pred3m   = predicted[predicted.length - 1];
   const pct      = Math.min(current / OZONE_HEALTHY, 1);        // 0→1
@@ -222,11 +244,17 @@ function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predic
   const sparkMin = Math.min(...last12) - 2, sparkMax = Math.max(...last12) + 2;
 
   return (
-    <div className="rounded-xl p-4 bg-black/25 border border-emerald-900/50 hover:border-emerald-700/60 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
+      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+    >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-sm font-semibold text-emerald-100" style={{ fontFamily: "Space Grotesk" }}>Ozone Layer</h3>
-          <p className="text-[10px] text-slate-500">Shield health vs 340 DU baseline</p>
+          <h3 className="text-sm font-semibold text-emerald-100 leading-tight" style={{ fontFamily: "Space Grotesk" }}>Ozone Layer</h3>
+          <p className="text-[10px] text-slate-500">Atmosphere shield health</p>
         </div>
         <span className="shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold"
           style={{ color: badge[1], borderColor: badge[1]+"60", background: badge[1]+"18" }}>
@@ -235,8 +263,8 @@ function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predic
       </div>
 
       {/* Shield ring + Earth */}
-      <div className="flex items-center gap-4">
-        <svg viewBox="0 0 120 120" style={{ width: 110, height: 110, flexShrink: 0 }}>
+      <div className="flex items-center gap-3">
+        <svg viewBox="0 0 120 120" style={{ width: 96, height: 96, flexShrink: 0 }}>
           {/* glow */}
           <circle cx={CX} cy={CY} r={R+10} fill="none" stroke={badge[1]} strokeWidth="18" opacity="0.06"/>
           {/* track */}
@@ -271,7 +299,7 @@ function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predic
         </svg>
 
         {/* right side info */}
-        <div className="flex flex-col gap-2 flex-1">
+        <div className="flex flex-col gap-1.5 flex-1 text-center sm:text-left">
           <div>
             <p className="text-[9px] text-slate-500">Current</p>
             <p className="text-base font-bold" style={{ color: badge[1] }}>{current} <span className="text-[9px] text-slate-500">DU</span></p>
@@ -293,9 +321,9 @@ function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predic
       </div>
 
       {/* mini monthly sparkbars */}
-      <div>
+      <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-2">
         <p className="text-[9px] text-slate-600 mb-1">Last 12 months (Dobson Units)</p>
-        <div className="flex items-end gap-0.5 h-6">
+        <div className="flex items-end gap-0.5 h-5">
           {last12.map((v, i) => {
             const h = ((v - sparkMin) / (sparkMax - sparkMin)) * 100;
             const isLast = i === last12.length - 1;
@@ -324,7 +352,7 @@ function OzoneCard({ historical, predicted, r2 }: { historical: number[]; predic
 const CO2_SAFE        = 350; // ppm — IPCC "safe" upper limit
 const CO2_PREINDUSTRIAL = 280; // ppm — 1750 baseline
 
-function CO2Card({ historical, predicted, r2 }: { historical: number[]; predicted: number[]; r2: number }) {
+function CO2Card({ historical, predicted, r2, onClick, selected }: { historical: number[]; predicted: number[]; r2: number; onClick?: () => void; selected?: boolean }) {
   const current  = historical[historical.length - 1];
   const pred3m   = predicted[predicted.length - 1];
   const aboveSafe = current - CO2_SAFE;
@@ -352,11 +380,17 @@ function CO2Card({ historical, predicted, r2 }: { historical: number[]; predicte
   };
 
   return (
-    <div className="rounded-xl p-4 bg-black/25 border border-emerald-900/50 hover:border-emerald-700/60 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-red-950/20 flex flex-col gap-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
+      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-red-950/20 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+    >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-sm font-semibold text-emerald-100" style={{ fontFamily: "Space Grotesk" }}>CO₂ Concentration</h3>
-          <p className="text-[10px] text-slate-500">Monthly mean — Mauna Loa ppm</p>
+          <h3 className="text-sm font-semibold text-emerald-100 leading-tight" style={{ fontFamily: "Space Grotesk" }}>CO₂ Concentration</h3>
+          <p className="text-[10px] text-slate-500">Monthly atmosphere trend</p>
         </div>
         <span className="shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold bg-red-900/40 border-red-700/50 text-red-400">
           Rising ↑
@@ -364,8 +398,8 @@ function CO2Card({ historical, predicted, r2 }: { historical: number[]; predicte
       </div>
 
       {/* Chart with reference lines */}
-      <div>
-        <svg viewBox={`0 0 ${CW} ${CH}`} className="w-full rounded-lg" style={{ height: 105 }} preserveAspectRatio="none">
+      <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-2">
+        <svg viewBox={`0 0 ${CW} ${CH}`} className="w-full rounded-lg" style={{ height: 88 }} preserveAspectRatio="none">
           <defs>
             <linearGradient id="co2-area" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%"   stopColor="#f87171" stopOpacity="0.38"/>
@@ -450,7 +484,7 @@ interface MetricCardProps {
   unit: string; badge: Badge; gradId: string; r2: number;
   formatVal?: (v: number) => string;
 }
-function MetricCard({ title, subtitle, source, historical, predicted, unit, badge, gradId, r2, formatVal }: MetricCardProps) {
+function MetricCard({ title, subtitle, source, historical, predicted, unit, badge, gradId, r2, formatVal, onClick, selected }: MetricCardProps & { onClick?: () => void; selected?: boolean }) {
   const fmt = formatVal ?? ((v: number) => v.toFixed(1));
   const allPts  = makePoints([...historical, ...predicted]);
   const histPts = allPts.slice(0, historical.length);
@@ -464,7 +498,13 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
   const hex = badge[2];
 
   return (
-    <div className="rounded-xl p-4 bg-black/25 border border-emerald-900/50 hover:border-emerald-700/60 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
+      className={`rounded-2xl p-4 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-3 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+    >
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-sm font-semibold text-emerald-100 leading-tight" style={{ fontFamily: "Space Grotesk" }}>{title}</h3>
@@ -499,15 +539,15 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
           <span>Jan'24</span><span>Jan'25</span><span>Mar'26 →</span>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07]">
+      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07] text-center">
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Current</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Now</p>
           <p className="text-sm font-bold" style={{ color: hex }}>
             {fmt(current)}<span className="text-[9px] text-slate-500 ml-0.5">{unit}</span>
           </p>
         </div>
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Jun'26 forecast</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Forecast</p>
           <div className="flex items-baseline gap-1">
             <p className="text-sm font-bold text-slate-200">{fmt(pred3m)}</p>
             <span className={`text-[9px] font-semibold ${deltaPct >= 0 ? "text-red-400" : "text-emerald-400"}`}>
@@ -516,7 +556,7 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
           </div>
         </div>
         <div>
-          <p className="text-[9px] text-slate-500 mb-0.5">Confidence</p>
+          <p className="text-[9px] text-slate-500 mb-0.5">Model</p>
           <p className={`text-sm font-bold ${confColor}`}>{confidence}%</p>
         </div>
       </div>
@@ -549,6 +589,7 @@ export default function MetricsSection() {
   const [aqiData, setAqiData] = useState<number[]>(AQI_DATA);
   const [isLive,  setIsLive]  = useState(false);
   const [liveTs,  setLiveTs]  = useState("");
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("aqi");
 
   useEffect(() => {
     const owKey = import.meta.env.VITE_OPENWEATHER_KEY;
@@ -642,63 +683,182 @@ export default function MetricsSection() {
   const ozoneForecast = useMemo(() => forecast(OZONE_DATA, PREDICT_STEPS), []);
   const oceanForecast = useMemo(() => forecast(OCEAN_DATA, PREDICT_STEPS), []);
 
+  const selectedInsight = useMemo<MetricInsight>(() => {
+    const aqiCurrent = aqiData[aqiData.length - 1];
+    const aqiForecastCurrent = aqiForecast[aqiForecast.length - 1];
+    const aqiZone = aqiZoneLabel(aqiCurrent);
+    const aqiChange = ((aqiForecastCurrent - aqiCurrent) / Math.max(aqiCurrent, 1)) * 100;
+
+    const ozoneCurrent = OZONE_DATA[OZONE_DATA.length - 1];
+    const ozoneForecastCurrent = ozoneForecast[ozoneForecast.length - 1];
+    const ozoneChange = ((ozoneForecastCurrent - ozoneCurrent) / Math.max(ozoneCurrent, 1)) * 100;
+
+    const co2Current = co2Data[co2Data.length - 1];
+    const co2ForecastCurrent = co2Forecast[co2Forecast.length - 1];
+    const co2Change = ((co2ForecastCurrent - co2Current) / Math.max(co2Current, 1)) * 100;
+
+    const oceanCurrent = OCEAN_DATA[OCEAN_DATA.length - 1];
+    const oceanForecastCurrent = oceanForecast[oceanForecast.length - 1];
+    const oceanChange = ((oceanForecastCurrent - oceanCurrent) / Math.max(oceanCurrent, 1)) * 100;
+
+    const map: Record<MetricKey, MetricInsight> = {
+      aqi: {
+        key: "aqi",
+        title: "Air Quality Index",
+        subtitle: "Global composite avg",
+        current: `${Math.round(aqiCurrent)}`,
+        forecast: `${Math.round(aqiForecastCurrent)}`,
+        delta: `${aqiChange >= 0 ? "+" : ""}${aqiChange.toFixed(1)}%`,
+        confidence: `${Math.min(99, Math.round(aqiReg.r2 * 100))}% model confidence`,
+        status: aqiZone.label,
+        summary: aqiZone.phrase,
+        recommendation: aqiZone.phrase,
+        accent: aqiZone.color,
+      },
+      ozone: {
+        key: "ozone",
+        title: "Ozone Layer",
+        subtitle: "Shield health vs baseline",
+        current: `${Math.round(ozoneCurrent)}`,
+        forecast: `${Math.round(ozoneForecastCurrent)}`,
+        delta: `${ozoneChange >= 0 ? "+" : ""}${ozoneChange.toFixed(1)}%`,
+        confidence: `${Math.min(99, Math.round(ozoneReg.r2 * 100))}% model confidence`,
+        status: ozoneCurrent >= 302 ? "Recovering" : ozoneCurrent >= 294 ? "Stable" : "Thinning",
+        summary: ozoneCurrent >= 302 ? "The ozone shield is healthier than average and keeping UV exposure in check." : ozoneCurrent >= 294 ? "The shield is steady, but it should still be watched for seasonal dips." : "The shield is thinner than ideal, so UV protection matters more today.",
+        recommendation: ozoneCurrent >= 302 ? "Normal outdoor exposure is fine. Keep sunscreen as a habit." : ozoneCurrent >= 294 ? "Use sunscreen and avoid long peak-sun exposure." : "Limit direct sun, use sunscreen, and cover up outdoors.",
+        accent: ozoneCurrent >= 302 ? "#34d399" : ozoneCurrent >= 294 ? "#f59e0b" : "#f87171",
+      },
+      co2: {
+        key: "co2",
+        title: "CO₂ Concentration",
+        subtitle: "Monthly mean — Mauna Loa ppm",
+        current: `${co2Current.toFixed(1)}`,
+        forecast: `${co2ForecastCurrent.toFixed(1)}`,
+        delta: `${co2Change >= 0 ? "+" : ""}${co2Change.toFixed(1)}%`,
+        confidence: `${Math.min(99, Math.round(co2Reg.r2 * 100))}% model confidence`,
+        status: co2ForecastCurrent >= co2Current ? "Rising" : "Cooling",
+        summary: "Carbon levels continue to trend in the same direction, which is the main long-term climate pressure signal in this panel.",
+        recommendation: "Track the rise trend and pair it with emissions and energy policy decisions.",
+        accent: "#f87171",
+      },
+      ocean: {
+        key: "ocean",
+        title: "Ocean Health Index",
+        subtitle: "Composite score (0 - 100)",
+        current: `${oceanCurrent.toFixed(1)}`,
+        forecast: `${oceanForecastCurrent.toFixed(1)}`,
+        delta: `${oceanChange >= 0 ? "+" : ""}${oceanChange.toFixed(1)}%`,
+        confidence: `${Math.min(99, Math.round(oceanReg.r2 * 100))}% model confidence`,
+        status: oceanBadge(oceanCurrent)[0],
+        summary: oceanCurrent >= 70 ? "Ocean systems are holding up relatively well, but stability is fragile." : oceanCurrent >= 62 ? "The ocean score needs attention because ecosystem stress is visible." : "Ocean health is under pressure and should be treated as a warning signal.",
+        recommendation: oceanCurrent >= 70 ? "Maintain protection and monitor pollution, warming, and habitat loss." : oceanCurrent >= 62 ? "Reduce marine stressors and watch the trend closely." : "Treat this as a warning and prioritize restoration and conservation.",
+        accent: oceanBadge(oceanCurrent)[2],
+      },
+    };
+
+    return map[selectedMetric];
+  }, [selectedMetric, aqiData, aqiForecast, aqiReg.r2, co2Data, co2Forecast, co2Reg.r2, oceanForecast, oceanReg.r2, ozoneForecast, ozoneReg.r2]);
+
   return (
     <section className="py-8">
-      <div className="mb-5">
-        <h2 className="text-2xl font-bold mb-1 text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
-          🌱 Environmental Metrics
-        </h2>
-        <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-sm text-slate-400">
-            Real data Jan 2024 – Mar 2026 · Linear regression predicts Apr – Jun 2026
-          </p>
-          {isLive && (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-900/40 border border-emerald-700/50 text-emerald-400 text-[10px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"/>
-              Live · {liveTs}
-            </span>
-          )}
+      <div className="rounded-[1.75rem] border border-emerald-800/35 bg-[radial-gradient(circle_at_top_left,rgba(20,83,45,0.22),transparent_40%),linear-gradient(180deg,rgba(3,10,6,0.96),rgba(2,8,4,0.96))] p-5 shadow-2xl shadow-black/35">
+        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-500/80">Environmental Intelligence</p>
+            <h2 className="mt-1 text-2xl font-bold text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+              Cleaner, interactive metrics
+            </h2>
+            <div className="mt-2 flex items-center gap-3 flex-wrap">
+              <p className="text-sm text-slate-400">
+                Real data Jan 2024 – Mar 2026 · Linear regression predicts Apr – Jun 2026
+              </p>
+              {isLive && (
+                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-900/40 border border-emerald-700/50 text-emerald-400 text-[10px] font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"/>
+                  Live · {liveTs}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="max-w-md rounded-2xl border border-emerald-800/40 bg-black/30 px-4 py-3 backdrop-blur-sm">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-emerald-500/80">Selected output</p>
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>{selectedInsight.title}</h3>
+                <p className="text-xs text-emerald-300/70">Tap any graph to switch the explanation</p>
+              </div>
+              <span className="rounded-full border px-2 py-0.5 text-[10px] font-semibold" style={{ color: selectedInsight.accent, borderColor: `${selectedInsight.accent}66`, background: `${selectedInsight.accent}18` }}>
+                {selectedInsight.status}
+              </span>
+            </div>
+            <p className="mt-2 text-sm text-slate-300 leading-relaxed">{selectedInsight.summary}</p>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs text-slate-400">
+              <div className="rounded-xl border border-white/5 bg-white/5 px-3 py-2">
+                <div className="text-[10px] text-slate-500">Current</div>
+                <div className="mt-1 text-sm font-semibold text-emerald-50">{selectedInsight.current}</div>
+              </div>
+              <div className="rounded-xl border border-white/5 bg-white/5 px-3 py-2">
+                <div className="text-[10px] text-slate-500">Forecast</div>
+                <div className="mt-1 text-sm font-semibold text-emerald-50">{selectedInsight.forecast}</div>
+              </div>
+              <div className="rounded-xl border border-white/5 bg-white/5 px-3 py-2">
+                <div className="text-[10px] text-slate-500">Delta</div>
+                <div className="mt-1 text-sm font-semibold text-emerald-50">{selectedInsight.delta}</div>
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-emerald-200/85 leading-relaxed">{selectedInsight.recommendation}</p>
+            <p className="mt-2 text-[10px] text-slate-500">{selectedInsight.confidence}</p>
+          </div>
         </div>
-      </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-5 mb-5 text-[10px] text-slate-500">
-        <span className="flex items-center gap-1.5">
-          <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#34d399" strokeWidth="2"/></svg>
-          Historical data
-        </span>
-        <span className="flex items-center gap-1.5">
-          <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="2" strokeDasharray="5 3"/></svg>
-          AI Prediction (Apr–Jun 2026)
-        </span>
-        <span className="flex items-center gap-1.5">
-          <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#94a3b8"/></svg>
-          Forecast point
-        </span>
-        <span className="flex items-center gap-1.5">
-          <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#34d399"/></svg>
-          Current (Mar 2026)
-        </span>
-      </div>
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-5 mb-5 text-[10px] text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#34d399" strokeWidth="2"/></svg>
+            Historical data
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="2" strokeDasharray="5 3"/></svg>
+            AI Prediction (Apr–Jun 2026)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#94a3b8"/></svg>
+            Forecast point
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#34d399"/></svg>
+            Current (Mar 2026)
+          </span>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AQICard
-          historical={aqiData} predicted={aqiForecast} r2={aqiReg.r2}
-        />
-        <OzoneCard
-          historical={OZONE_DATA} predicted={ozoneForecast} r2={ozoneReg.r2}
-        />
-        <CO2Card
-          historical={co2Data} predicted={co2Forecast} r2={co2Reg.r2}
-        />
-        <MetricCard
-          title="Ocean Health Index" subtitle="Composite score (0 – 100)"
-          source="Source: OHI / NCEAS Global Score"
-          historical={OCEAN_DATA} predicted={oceanForecast}
-          unit="/100" badge={oceanBadge(OCEAN_DATA[OCEAN_DATA.length-1])}
-          gradId="ocean" r2={oceanReg.r2}
-          formatVal={v => v.toFixed(1)}
-        />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+          <AQICard
+            historical={aqiData} predicted={aqiForecast} r2={aqiReg.r2}
+            selected={selectedMetric === "aqi"}
+            onClick={() => setSelectedMetric("aqi")}
+          />
+          <OzoneCard
+            historical={OZONE_DATA} predicted={ozoneForecast} r2={ozoneReg.r2}
+            selected={selectedMetric === "ozone"}
+            onClick={() => setSelectedMetric("ozone")}
+          />
+          <CO2Card
+            historical={co2Data} predicted={co2Forecast} r2={co2Reg.r2}
+            selected={selectedMetric === "co2"}
+            onClick={() => setSelectedMetric("co2")}
+          />
+          <MetricCard
+            title="Ocean Health Index" subtitle="Composite score (0 - 100)"
+            source="Source: OHI / NCEAS Global Score"
+            historical={OCEAN_DATA} predicted={oceanForecast}
+            unit="/100" badge={oceanBadge(OCEAN_DATA[OCEAN_DATA.length-1])}
+            gradId="ocean" r2={oceanReg.r2}
+            formatVal={v => v.toFixed(1)}
+            selected={selectedMetric === "ocean"}
+            onClick={() => setSelectedMetric("ocean")}
+          />
+        </div>
       </div>
     </section>
   );

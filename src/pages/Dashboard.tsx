@@ -3,22 +3,74 @@ import { useEffect, useRef, useState } from "react";
 import EmissionsSection from "../components/EmissionsSection";
 import MetricsSection from "../components/MetricsSection";
 import LivePollutantsTracker from "../components/LivePollutantsTracker";
-import NatureBot from "../components/NatureBot";
+import FloatingNatureBot from "../components/FloatingNatureBot";
+import WeatherForecastSection from "../components/WeatherForecastSection";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLocation, setSearchLocation] = useState<{ lat: number; lon: number; name?: string } | null>(null);
   const [mapClickLocation, setMapClickLocation] = useState<{ lat: number; lon: number; name?: string } | null>(null);
+  const [defaultLocationLoaded, setDefaultLocationLoaded] = useState(false);
   const emissionsSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!searchLocation) return;
+    if (!navigator.geolocation) {
+      setDefaultLocationLoaded(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        try {
+          const apiKey = import.meta.env.VITE_OPENWEATHER_KEY;
+          const response = await fetch(
+            `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`
+          );
+          const data = await response.json();
+
+          const location = {
+            lat,
+            lon,
+            name: data?.length > 0 ? `${data[0].name}, ${data[0].country}` : "Your current location",
+          };
+
+          setSearchLocation(location);
+          setMapClickLocation(location);
+        } catch (error) {
+          console.error("Error resolving current location:", error);
+          const location = {
+            lat,
+            lon,
+            name: "Your current location",
+          };
+          setSearchLocation(location);
+          setMapClickLocation(location);
+        } finally {
+          setDefaultLocationLoaded(true);
+        }
+      },
+      (error) => {
+        console.warn("Geolocation unavailable, falling back to default city:", error);
+        const fallback = { lat: 28.6139, lon: 77.2090, name: "Delhi, India" };
+        setSearchLocation(fallback);
+        setMapClickLocation(fallback);
+        setDefaultLocationLoaded(true);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!searchLocation || !defaultLocationLoaded) return;
 
     emissionsSectionRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
-  }, [searchLocation]);
+  }, [searchLocation, defaultLocationLoaded]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,21 +143,12 @@ export default function Dashboard() {
       {/* TRACKED MOLECULES & POLLUTANTS */}
       <LivePollutantsTracker selectedLocation={mapClickLocation} />
 
-      {/* TERRA — NATURE AI BOT */}
-      <section>
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold text-emerald-50" style={{ fontFamily: 'Space Grotesk' }}>
-            🌿 Terra · Nature Intelligence
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            AI-powered health predictions based on real-time air quality at your selected location
-          </p>
-        </div>
-        <NatureBot selectedLocation={mapClickLocation} />
-      </section>
+      <WeatherForecastSection selectedLocation={mapClickLocation} />
 
       {/* ENVIRONMENTAL METRICS SECTION */}
       <MetricsSection />
+
+      <FloatingNatureBot selectedLocation={mapClickLocation} />
     </div>
   );
 }

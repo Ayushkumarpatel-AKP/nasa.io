@@ -26,7 +26,7 @@ interface Props {
 }
 
 export default function LivePollutantsTracker({ selectedLocation }: Props) {
-  const [locationName, setLocationName] = useState<string>("Delhi, India");
+  const [locationName, setLocationName] = useState<string>("Your current location");
   const [overallAQI, setOverallAQI] = useState<number>(0);
   const [aqiStatus, setAqiStatus] = useState<string>("Loading...");
   const [aqiColor, setAqiColor] = useState<string>("gray");
@@ -150,11 +150,16 @@ export default function LivePollutantsTracker({ selectedLocation }: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const openWeatherKey = import.meta.env.VITE_OPENWEATHER_KEY;
-        const lat = selectedLocation?.lat ?? 28.6139;
-        const lon = selectedLocation?.lon ?? 77.2090;
+        if (!selectedLocation) {
+          setLocationName("Select a location to load local air data");
+          return;
+        }
 
-        if (selectedLocation?.name) setLocationName(selectedLocation.name);
+        const openWeatherKey = import.meta.env.VITE_OPENWEATHER_KEY;
+        const lat = selectedLocation.lat;
+        const lon = selectedLocation.lon;
+
+        if (selectedLocation.name) setLocationName(selectedLocation.name);
 
         // Parallel fetch: air pollution + weather
         const [apRes, wxRes] = await Promise.all([
