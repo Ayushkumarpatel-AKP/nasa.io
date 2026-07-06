@@ -22,7 +22,7 @@ type Props = {
 
 const OPENWEATHER_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
 
-function dayLabel(date: Date, offset = 0) {
+function dayLabel(date: Date) {
   return new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
 }
 
