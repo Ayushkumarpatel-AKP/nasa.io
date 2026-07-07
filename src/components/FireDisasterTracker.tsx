@@ -55,6 +55,7 @@ export default function FireDisasterTracker() {
   const [fires, setFires] = useState<FireHotspot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedFire, setSelectedFire] = useState<FireHotspot | null>(null);
 
   useEffect(() => {
     fetchFireData();
@@ -110,6 +111,18 @@ export default function FireDisasterTracker() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCardClick = (fire: FireHotspot) => {
+    setSelectedFire(fire);
+    console.log('🎯 Fire selected:', fire);
+    // Scroll to map section with smooth behavior
+    setTimeout(() => {
+      const mapSection = document.getElementById('global-emissions-map');
+      if (mapSection) {
+        mapSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
 
   return (
@@ -178,68 +191,92 @@ export default function FireDisasterTracker() {
 
           {/* Grid of Fire Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {fires.map((fire, idx) => (
-              <div
-                key={idx}
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-900/30 to-orange-900/20 border border-red-700/40 p-5 hover:border-red-600/70 transition-all duration-300 hover:shadow-lg hover:shadow-red-900/30 cursor-pointer"
-              >
-                {/* Background glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 via-transparent to-orange-500/0 group-hover:from-red-500/10 group-hover:to-orange-500/10 transition-all duration-300" />
+            {fires.map((fire, idx) => {
+              const isSelected = selectedFire && 
+                selectedFire.latitude === fire.latitude && 
+                selectedFire.longitude === fire.longitude;
+              
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleCardClick(fire)}
+                  className={`group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-900/30 to-orange-900/20 border p-5 transition-all duration-300 cursor-pointer ${
+                    isSelected
+                      ? 'border-red-400/80 shadow-lg shadow-red-900/50 scale-105'
+                      : 'border-red-700/40 hover:border-red-600/70 hover:shadow-lg hover:shadow-red-900/30'
+                  }`}
+                >
+                  {/* Background glow */}
+                  <div className={`absolute inset-0 bg-gradient-to-br transition-all duration-300 ${
+                    isSelected 
+                      ? 'from-red-500/20 via-transparent to-orange-500/20' 
+                      : 'from-red-500/0 via-transparent to-orange-500/0 group-hover:from-red-500/10 group-hover:to-orange-500/10'
+                  }`} />
 
-                <div className="relative z-10">
-                  {/* Header with flag and country */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-4xl">{getFlagEmoji(fire.country)}</span>
-                      <div>
-                        <h4 className="text-lg font-bold text-white">{fire.country}</h4>
-                        <p className="text-xs text-white/50">
-                          {fire.daynight === 'N' ? '🌙 Night Detection' : '☀️ Day Detection'}
+                  <div className="relative z-10">
+                    {/* Header with flag and country */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-4xl">{getFlagEmoji(fire.country)}</span>
+                        <div>
+                          <h4 className="text-lg font-bold text-white">{fire.country}</h4>
+                          <p className="text-xs text-white/50">
+                            {fire.daynight === 'N' ? '🌙 Night Detection' : '☀️ Day Detection'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-2xl">🔥</div>
+                    </div>
+
+                    {/* Main metrics */}
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="bg-black/30 rounded-lg p-3 border border-red-700/30">
+                        <p className="text-xs text-red-400/70 font-medium mb-1">Brightness</p>
+                        <p className="text-xl font-bold text-red-300">{fire.brightness.toFixed(0)}K</p>
+                      </div>
+                      <div className="bg-black/30 rounded-lg p-3 border border-orange-700/30">
+                        <p className="text-xs text-orange-400/70 font-medium mb-1">Confidence</p>
+                        <p className="text-xl font-bold text-orange-300">{fire.confidence.toFixed(0)}%</p>
+                      </div>
+                      <div className="bg-black/30 rounded-lg p-3 border border-yellow-700/30">
+                        <p className="text-xs text-yellow-400/70 font-medium mb-1">Distance</p>
+                        <p className="text-xl font-bold text-yellow-300">
+                          {Math.sqrt(fire.latitude ** 2 + fire.longitude ** 2).toFixed(0)}km
                         </p>
                       </div>
                     </div>
-                    <div className="text-2xl">🔥</div>
-                  </div>
 
-                  {/* Main metrics */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-black/30 rounded-lg p-3 border border-red-700/30">
-                      <p className="text-xs text-red-400/70 font-medium mb-1">Brightness</p>
-                      <p className="text-xl font-bold text-red-300">{fire.brightness.toFixed(0)}K</p>
+                    {/* Coordinates and time */}
+                    <div className="space-y-2 pt-4 border-t border-white/10">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-white/50">Coordinates</span>
+                        <span className="text-white/80 font-mono">
+                          {fire.latitude.toFixed(3)}°, {fire.longitude.toFixed(3)}°
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-white/50">Detected</span>
+                        <span className="text-white/80">
+                          {fire.date} {fire.acq_time}
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-black/30 rounded-lg p-3 border border-orange-700/30">
-                      <p className="text-xs text-orange-400/70 font-medium mb-1">Confidence</p>
-                      <p className="text-xl font-bold text-orange-300">{fire.confidence.toFixed(0)}%</p>
-                    </div>
-                    <div className="bg-black/30 rounded-lg p-3 border border-yellow-700/30">
-                      <p className="text-xs text-yellow-400/70 font-medium mb-1">Distance</p>
-                      <p className="text-xl font-bold text-yellow-300">
-                        {Math.sqrt(fire.latitude ** 2 + fire.longitude ** 2).toFixed(0)}km
+
+                    {/* Click hint */}
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <p className="text-[10px] text-emerald-400/60 text-center group-hover:text-emerald-400/100 transition-colors">
+                        {isSelected ? '✓ Selected - Showing on map' : '👆 Click to view on map'}
                       </p>
                     </div>
                   </div>
 
-                  {/* Coordinates and time */}
-                  <div className="space-y-2 pt-4 border-t border-white/10">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-white/50">Coordinates</span>
-                      <span className="text-white/80 font-mono">
-                        {fire.latitude.toFixed(3)}°, {fire.longitude.toFixed(3)}°
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-white/50">Detected</span>
-                      <span className="text-white/80">
-                        {fire.date} {fire.acq_time}
-                      </span>
-                    </div>
-                  </div>
+                  {/* Hover highlight bar */}
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 transition-opacity duration-300 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 ${
+                    isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`} />
                 </div>
-
-                {/* Hover highlight bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

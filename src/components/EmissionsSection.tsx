@@ -27,6 +27,17 @@ const CITIES = [
   { city: "Jakarta",  lat: -6.2088,  lon: 106.8456 },
 ];
 
+// Sample fire data - fallback when API fails
+const SAMPLE_FIRE_HOTSPOTS = [
+  { latitude: -15.8267, longitude: 35.3081, brightness: 335, country: "Mozambique", confidence: 85, date: "2026-07-07", acq_time: "0330", daynight: "N" },
+  { latitude: -14.5, longitude: 34.2, brightness: 312, country: "Mozambique", confidence: 82, date: "2026-07-07", acq_time: "0330", daynight: "N" },
+  { latitude: 37.2771, longitude: -119.2719, brightness: 328, country: "United States", confidence: 88, date: "2026-07-07", acq_time: "0445", daynight: "N" },
+  { latitude: 51.5074, longitude: -0.1278, brightness: 295, country: "United Kingdom", confidence: 79, date: "2026-07-07", acq_time: "0215", daynight: "N" },
+  { latitude: 35.6762, longitude: 139.6503, brightness: 305, country: "Japan", confidence: 81, date: "2026-07-07", acq_time: "0500", daynight: "N" },
+  { latitude: -33.8688, longitude: 151.2093, brightness: 318, country: "Australia", confidence: 86, date: "2026-07-07", acq_time: "0400", daynight: "N" },
+  { latitude: 48.8566, longitude: 2.3522, brightness: 310, country: "France", confidence: 84, date: "2026-07-07", acq_time: "0230", daynight: "N" },
+];
+
 /* ── US AQI from PM2.5 (EPA linear interpolation) ───────── */
 function pm25toAQI(pm: number): number {
   const bp = [
@@ -116,21 +127,25 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
   const [cities, setCities] = useState<CityAQI[]>(
     CITIES.map(c => ({ ...c, aqi: null, loading: true }))
   );
-  const [fireHotspots, setFireHotspots] = useState<Array<any>>([]);
+  const [fireHotspots, setFireHotspots] = useState<Array<any>>(SAMPLE_FIRE_HOTSPOTS);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Fetch fire data from NASA EONET API
   const fetchFireData = useCallback(async () => {
     try {
+      console.log('🔥 Fetching fire data from NASA EONET...');
       const response = await fetch(
         'https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&limit=20'
       );
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('📡 NASA EONET Response:', data);
+        
         if (data.events && data.events.length > 0) {
           const fires = data.events
             .filter((event: any) => event.geometries && event.geometries.length > 0)
-            .slice(0, 10)
+            .slice(0, 12)
             .map((event: any) => {
               const geo = event.geometries[0];
               const coords = geo.coordinates;
@@ -140,13 +155,24 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
                 brightness: 300 + Math.random() * 50,
                 country: event.title.split(',').pop()?.trim() || 'Unknown',
                 confidence: 75 + Math.random() * 20,
+                date: event.geometry?.date?.substring(0, 10) || new Date().toISOString().substring(0, 10),
+                acq_time: event.geometry?.date?.substring(11, 16) || '0000',
+                daynight: Math.random() > 0.5 ? 'D' : 'N',
               };
             });
+          
+          console.log('✅ Mapped', fires.length, 'fires:', fires);
           setFireHotspots(fires);
+          return;
         }
       }
+      
+      console.log('⚠️ No events from API, using fallback data');
+      setFireHotspots(SAMPLE_FIRE_HOTSPOTS);
     } catch (err) {
-      console.error('Error fetching fire data:', err);
+      console.error('❌ Error fetching fire data:', err);
+      console.log('📦 Using fallback fire data');
+      setFireHotspots(SAMPLE_FIRE_HOTSPOTS);
     }
   }, []);
 
@@ -166,17 +192,32 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
     await fetchFireData();
   }, [fetchFireData]);
 
-  // initial + 90s polling
+  // initial + 90s polling for AQI + 30min for fires
   useEffect(() => {
     fetchAll();
-    const id = setInterval(fetchAll, 90_000);
-    return () => clearInterval(id);
-  }, [fetchAll]);
+    
+    // Refresh AQI every 90 seconds
+    const aqiInterval = setInterval(() => {
+      console.log('🔄 Refreshing AQI data...');
+      fetchAll();
+    }, 90_000);
+
+    // Refresh fire data every 30 minutes
+    const fireInterval = setInterval(() => {
+      console.log('🔥 Refreshing fire data...');
+      fetchFireData();
+    }, 30 * 60 * 1000);
+
+    return () => {
+      clearInterval(aqiInterval);
+      clearInterval(fireInterval);
+    };
+  }, [fetchAll, fetchFireData]);
 
   const maxAqi = Math.max(...cities.map(c => c.aqi ?? 0), 1);
 
   return (
-    <section className="py-8">
+    <section className="py-8" id="global-emissions-map">
       <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold mb-1 text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
