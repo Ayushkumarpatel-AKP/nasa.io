@@ -6,6 +6,7 @@ import AirQualityMap from "./AirQualityMap";
 interface Props {
   searchLocation?: { lat: number; lon: number; name?: string } | null;
   onLocationSelect?: (location: { lat: number; lon: number; name?: string }) => void;
+  selectedFire?: any;
 }
 
 interface CityAQI {
@@ -123,7 +124,7 @@ function LiveStat({ label, value, suffix, color, icon }: {
   );
 }
 
-export default function EmissionsSection({ searchLocation, onLocationSelect }: Props) {
+export default function EmissionsSection({ searchLocation, onLocationSelect, selectedFire = null }: Props) {
   const [cities, setCities] = useState<CityAQI[]>(
     CITIES.map(c => ({ ...c, aqi: null, loading: true }))
   );
@@ -250,7 +251,7 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
               Live
             </div>
           </div>
-          <AirQualityMap searchLocation={searchLocation} onLocationSelect={onLocationSelect} fireHotspots={fireHotspots} />
+          <AirQualityMap searchLocation={searchLocation} onLocationSelect={onLocationSelect} fireHotspots={fireHotspots} selectedFireLocation={selectedFire} />
         </div>
 
         {/* ── Side Panel ── */}

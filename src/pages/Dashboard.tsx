@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLocation, setSearchLocation] = useState<{ lat: number; lon: number; name?: string } | null>(null);
   const [mapClickLocation, setMapClickLocation] = useState<{ lat: number; lon: number; name?: string } | null>(null);
+  const [selectedFire, setSelectedFire] = useState<any>(null);
   const [defaultLocationLoaded, setDefaultLocationLoaded] = useState(false);
   const emissionsSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -137,6 +138,7 @@ export default function Dashboard() {
         <EmissionsSection
           searchLocation={searchLocation}
           onLocationSelect={setMapClickLocation}
+          selectedFire={selectedFire}
         />
       </section>
 
@@ -146,7 +148,7 @@ export default function Dashboard() {
       <MetricsSection />
 
       {/* NASA FIRE DISASTER TRACKER - REPLACES LIVE MONITORING */}
-      <FireDisasterTracker />
+      <FireDisasterTracker onFireSelect={setSelectedFire} selectedFire={selectedFire} />
 
       <FloatingNatureBot selectedLocation={mapClickLocation} />
     </div>

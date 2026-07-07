@@ -12,6 +12,11 @@ interface FireHotspot {
   daynight: string;
 }
 
+interface Props {
+  onFireSelect?: (fire: FireHotspot | null) => void;
+  selectedFire?: FireHotspot | null;
+}
+
 // Country codes for flag emojis
 const COUNTRY_FLAGS: Record<string, string> = {
   "Mozambique": "🇲🇿",
@@ -51,11 +56,10 @@ const SAMPLE_FIRES: FireHotspot[] = [
   { latitude: 48.8566, longitude: 2.3522, brightness: 310, country: "France", confidence: 84, date: "2026-07-07", acq_time: "0230", daynight: "N" },
 ];
 
-export default function FireDisasterTracker() {
+export default function FireDisasterTracker({ onFireSelect, selectedFire = null }: Props) {
   const [fires, setFires] = useState<FireHotspot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedFire, setSelectedFire] = useState<FireHotspot | null>(null);
 
   useEffect(() => {
     fetchFireData();
@@ -114,8 +118,10 @@ export default function FireDisasterTracker() {
   };
 
   const handleCardClick = (fire: FireHotspot) => {
-    setSelectedFire(fire);
     console.log('🎯 Fire selected:', fire);
+    if (onFireSelect) {
+      onFireSelect(fire);
+    }
     // Scroll to map section with smooth behavior
     setTimeout(() => {
       const mapSection = document.getElementById('global-emissions-map');

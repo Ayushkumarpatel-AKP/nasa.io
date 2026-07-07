@@ -1,5 +1,5 @@
 // src/components/AirQualityMap.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -109,16 +109,21 @@ function MapClickHandler({ onLocationClick }: { onLocationClick: (lat: number, l
 }
 
 // Component to update map center when search location changes
-function MapCenterUpdater({ searchLocation }: { searchLocation: { lat: number; lon: number } | null }) {
+function MapCenterUpdater({ searchLocation, selectedFireLocation }: { searchLocation: { lat: number; lon: number } | null; selectedFireLocation: any }) {
   const map = useMap();
   
   useEffect(() => {
-    if (searchLocation) {
+    if (selectedFireLocation) {
+      console.log('🔥 Zooming to fire location:', selectedFireLocation);
+      map.flyTo([selectedFireLocation.latitude, selectedFireLocation.longitude], 8, {
+        duration: 1.5,
+      });
+    } else if (searchLocation) {
       map.flyTo([searchLocation.lat, searchLocation.lon], 10, {
         duration: 2,
       });
     }
-  }, [searchLocation, map]);
+  }, [searchLocation, selectedFireLocation, map]);
   
   return null;
 }
@@ -127,6 +132,7 @@ interface Props {
   searchLocation?: { lat: number; lon: number; name?: string } | null;
   onLocationSelect?: (location: { lat: number; lon: number; name?: string }) => void;
   fireHotspots?: Array<{ latitude: number; longitude: number; brightness: number; country: string; confidence: number }>;
+  selectedFireLocation?: { latitude: number; longitude: number; country: string; brightness: number; confidence: number } | null;
 }
 
 /* EPA US AQI from PM2.5 -------------------------------------------------- */
@@ -146,12 +152,13 @@ const pm25toAQI = (pm: number): number => {
   return Math.min(Math.round(pm * 2), 500);
 };
 
-export default function AirQualityMap({ searchLocation, onLocationSelect, fireHotspots = [] }: Props) {
+export default function AirQualityMap({ searchLocation, onLocationSelect, fireHotspots = [], selectedFireLocation = null }: Props) {
   const [airQualityData, setAirQualityData] = useState<AirQualityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapLayer, setMapLayer] = useState<MapLayerType>("street");
   const [locationReport, setLocationReport] = useState<LocationReport | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const mapRef = useRef<any>(null);
   const openWeatherKey = import.meta.env.VITE_OPENWEATHER_KEY;
   // NASA Token available for future satellite imagery integration
   // const nasaToken = import.meta.env.VITE_NASA_EARTHDATA_TOKEN;
@@ -293,7 +300,11 @@ export default function AirQualityMap({ searchLocation, onLocationSelect, fireHo
         />
         
         <MapClickHandler onLocationClick={handleLocationClick} />
-        {searchLocation && <MapCenterUpdater searchLocation={searchLocation} />}
+        {selectedFireLocation ? (
+          <MapCenterUpdater searchLocation={null} selectedFireLocation={selectedFireLocation} />
+        ) : (
+          searchLocation && <MapCenterUpdater searchLocation={searchLocation} selectedFireLocation={null} />
+        )}
 
         {/* Air Quality Markers */}
         {airQualityData.map((location, index) => (
