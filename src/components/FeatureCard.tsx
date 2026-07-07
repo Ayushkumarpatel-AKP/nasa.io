@@ -1,5 +1,5 @@
 // src/components/FeatureCard.tsx
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useTransition } from 'react';
 
 type Props = {
   icon: ReactNode;
@@ -11,14 +11,23 @@ const NATURE_FONT = "'Playfair Display', Georgia, serif";
 
 export default function FeatureCard({ icon, title, description }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [, startTransition] = useTransition();
+
+  const handleMouseEnter = () => {
+    startTransition(() => setIsFlipped(true));
+  };
+
+  const handleMouseLeave = () => {
+    startTransition(() => setIsFlipped(false));
+  };
 
   return (
     <div className="relative flex justify-center items-center">
       {/* Circular flippable card container */}
       <div
         className="relative w-40 h-40 cursor-pointer"
-        onMouseEnter={() => setIsFlipped(true)}
-        onMouseLeave={() => setIsFlipped(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{ perspective: '1000px' }}
       >
         <div
