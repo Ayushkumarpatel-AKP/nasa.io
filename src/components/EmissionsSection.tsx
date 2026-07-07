@@ -162,18 +162,20 @@ export default function EmissionsSection({ searchLocation, onLocationSelect, sel
               };
             });
           
-          console.log('✅ Mapped', fires.length, 'fires:', fires);
-          setFireHotspots(fires);
-          return;
+          if (fires.length > 0) {
+            console.log('✅ Mapped', fires.length, 'fires:', fires);
+            setFireHotspots(fires);
+            return;
+          }
         }
       }
       
-      console.log('⚠️ No events from API, using fallback data');
-      setFireHotspots(SAMPLE_FIRE_HOTSPOTS);
+      console.log('⚠️ No events from API, keeping existing data');
+      // Don't update if no data - keep current state
     } catch (err) {
       console.error('❌ Error fetching fire data:', err);
-      console.log('📦 Using fallback fire data');
-      setFireHotspots(SAMPLE_FIRE_HOTSPOTS);
+      console.log('📦 Keeping existing fire data');
+      // Don't update on error - keep current state
     }
   }, []);
 

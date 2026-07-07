@@ -57,8 +57,8 @@ const SAMPLE_FIRES: FireHotspot[] = [
 ];
 
 export default function FireDisasterTracker({ onFireSelect, selectedFire = null }: Props) {
-  const [fires, setFires] = useState<FireHotspot[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fires, setFires] = useState<FireHotspot[]>(SAMPLE_FIRES);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -107,11 +107,11 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
         }
       }
       
-      setFires(SAMPLE_FIRES);
+      // Keep existing data if API fails or returns no data
       setError('');
     } catch (err) {
       console.error('Error fetching fire data:', err);
-      setFires(SAMPLE_FIRES);
+      // Keep existing data on error
     } finally {
       setLoading(false);
     }
