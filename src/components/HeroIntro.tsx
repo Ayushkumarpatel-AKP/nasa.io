@@ -4,6 +4,7 @@ import ARVisionButton from "./ARVisionButton";
 import AnimatedText from "./AnimatedText";
 
 export default function HeroIntro() {
+  // Updated: 2026-07-07 - Vercel deployment refresh
   return (
     <section className="pt-6 pb-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
