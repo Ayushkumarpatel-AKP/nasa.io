@@ -37,7 +37,22 @@ const isLocalHost =
   typeof window !== "undefined" &&
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 const configuredAppUrl = (import.meta.env.VITE_APP_URL || "").trim();
-const appUrl = (isLocalHost ? window.location.origin : configuredAppUrl || window.location.origin).replace(/\/$/, "");
+
+// Priority: configuredAppUrl (Vercel env) > window.location.origin (current domain)
+const appUrl = (configuredAppUrl || window.location.origin).replace(/\/$/, "");
+
+// Log for debugging
+if (typeof window !== "undefined") {
+  console.log(
+    "🔐 Email Verification Setup:",
+    "\n  📍 Hostname:", window.location.hostname,
+    "\n  🌐 Current origin:", window.location.origin,
+    "\n  ⚙️ VITE_APP_URL:", configuredAppUrl || "(not set)",
+    "\n  ✅ Final URL:", appUrl,
+    "\n  🔧 Using:", configuredAppUrl ? "configured URL" : "current origin"
+  );
+}
+
 const verificationActionSettings = {
   url: `${appUrl}/login`,
   handleCodeInApp: false,
