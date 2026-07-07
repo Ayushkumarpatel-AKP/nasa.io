@@ -33,30 +33,40 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const normalizeEmail = (email?: string | null) => (email || "").trim();
-const isLocalHost =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-const configuredAppUrl = (import.meta.env.VITE_APP_URL || "").trim();
 
-// Priority: configuredAppUrl (Vercel env) > window.location.origin (current domain)
-const appUrl = (configuredAppUrl || window.location.origin).replace(/\/$/, "");
+const getAppUrl = () => {
+  const envUrl = (import.meta.env.VITE_APP_URL || "").trim().replace(/\/$/, "");
 
-// Log for debugging
-if (typeof window !== "undefined") {
-  console.log(
-    "🔐 Email Verification Setup:",
-    "\n  📍 Hostname:", window.location.hostname,
-    "\n  🌐 Current origin:", window.location.origin,
-    "\n  ⚙️ VITE_APP_URL:", configuredAppUrl || "(not set)",
-    "\n  ✅ Final URL:", appUrl,
-    "\n  🔧 Using:", configuredAppUrl ? "configured URL" : "current origin"
-  );
-}
+  if (typeof window === "undefined") {
+    return envUrl;
+  }
+
+  const currentOrigin = window.location.origin.replace(/\/$/, "");
+  const hostname = window.location.hostname;
+
+  const isLocal =
+    hostname === "localhost" || hostname === "127.0.0.1";
+
+  // Local dev me localhost use karo
+  if (isLocal) return currentOrigin;
+
+  // Production me env URL tabhi use karo jab valid ho
+  if (envUrl) return envUrl;
+
+  // fallback to current deployed domain
+  return currentOrigin;
+};
+
+const appUrl = getAppUrl();
 
 const verificationActionSettings = {
   url: `${appUrl}/login`,
   handleCodeInApp: false,
 };
+
+if (typeof window !== "undefined") {
+  console.log("Verification redirect URL:", verificationActionSettings.url);
+}
 
 const firebaseSetupHelp =
   "Firebase env vars are missing or not loaded. If this is local dev, restart Vite after editing .env. If this is Vercel, add the VITE_FIREBASE_* values in Project Settings > Environment Variables and redeploy.";
