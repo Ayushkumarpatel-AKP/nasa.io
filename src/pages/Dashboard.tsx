@@ -5,6 +5,7 @@ import MetricsSection from "../components/MetricsSection";
 import LivePollutantsTracker from "../components/LivePollutantsTracker";
 import FloatingNatureBot from "../components/FloatingNatureBot";
 import WeatherForecastSection from "../components/WeatherForecastSection";
+import FireDisasterTracker from "../components/FireDisasterTracker";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,6 +148,9 @@ export default function Dashboard() {
 
       {/* ENVIRONMENTAL METRICS SECTION */}
       <MetricsSection />
+
+      {/* NASA FIRE DISASTER TRACKER */}
+      <FireDisasterTracker />
 
       <FloatingNatureBot selectedLocation={mapClickLocation} />
     </div>
