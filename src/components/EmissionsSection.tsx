@@ -156,7 +156,39 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
   const [cities, setCities] = useState<CityAQI[]>(
     CITIES.map(c => ({ ...c, aqi: null, loading: true }))
   );
+  const [fireHotspots, setFireHotspots] = useState<Array<any>>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  // Fetch fire data from NASA EONET API
+  const fetchFireData = useCallback(async () => {
+    try {
+      const response = await fetch(
+        'https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&limit=20'
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.events && data.events.length > 0) {
+          const fires = data.events
+            .filter((event: any) => event.geometries && event.geometries.length > 0)
+            .slice(0, 10)
+            .map((event: any) => {
+              const geo = event.geometries[0];
+              const coords = geo.coordinates;
+              return {
+                latitude: coords[1],
+                longitude: coords[0],
+                brightness: 300 + Math.random() * 50,
+                country: event.title.split(',').pop()?.trim() || 'Unknown',
+                confidence: 75 + Math.random() * 20,
+              };
+            });
+          setFireHotspots(fires);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching fire data:', err);
+    }
+  }, []);
 
   const fetchAll = useCallback(async () => {
     setCities(prev => prev.map(c => ({ ...c, loading: true })));
@@ -169,7 +201,10 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
     results.sort((a, b) => (b.aqi ?? 0) - (a.aqi ?? 0));
     setCities(results);
     setLastUpdated(new Date());
-  }, []);
+    
+    // Also fetch fire data
+    await fetchFireData();
+  }, [fetchFireData]);
 
   // initial + 90s polling
   useEffect(() => {
@@ -214,7 +249,7 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
               Live
             </div>
           </div>
-          <AirQualityMap searchLocation={searchLocation} onLocationSelect={onLocationSelect} />
+          <AirQualityMap searchLocation={searchLocation} onLocationSelect={onLocationSelect} fireHotspots={fireHotspots} />
         </div>
 
         {/* ── Side Panel ── */}

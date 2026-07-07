@@ -126,6 +126,7 @@ function MapCenterUpdater({ searchLocation }: { searchLocation: { lat: number; l
 interface Props {
   searchLocation?: { lat: number; lon: number; name?: string } | null;
   onLocationSelect?: (location: { lat: number; lon: number; name?: string }) => void;
+  fireHotspots?: Array<{ latitude: number; longitude: number; brightness: number; country: string; confidence: number }>;
 }
 
 /* EPA US AQI from PM2.5 -------------------------------------------------- */
@@ -145,7 +146,7 @@ const pm25toAQI = (pm: number): number => {
   return Math.min(Math.round(pm * 2), 500);
 };
 
-export default function AirQualityMap({ searchLocation, onLocationSelect }: Props) {
+export default function AirQualityMap({ searchLocation, onLocationSelect, fireHotspots = [] }: Props) {
   const [airQualityData, setAirQualityData] = useState<AirQualityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapLayer, setMapLayer] = useState<MapLayerType>("street");
@@ -294,9 +295,10 @@ export default function AirQualityMap({ searchLocation, onLocationSelect }: Prop
         <MapClickHandler onLocationClick={handleLocationClick} />
         {searchLocation && <MapCenterUpdater searchLocation={searchLocation} />}
 
+        {/* Air Quality Markers */}
         {airQualityData.map((location, index) => (
           <Marker
-            key={index}
+            key={`aq-${index}`}
             position={[location.lat, location.lon]}
             icon={createCustomIcon(location.color)}
           >
@@ -356,6 +358,63 @@ export default function AirQualityMap({ searchLocation, onLocationSelect }: Prop
                       <p className="text-gray-500">Pressure</p>
                       <p className="font-bold">{location.pressure} hPa</p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Fire Hotspot Markers from NASA */}
+        {fireHotspots && fireHotspots.map((fire, index) => (
+          <Marker
+            key={`fire-${index}`}
+            position={[fire.latitude, fire.longitude]}
+            icon={L.divIcon({
+              className: "fire-marker",
+              html: `<div style="
+                width: 28px;
+                height: 28px;
+                background: radial-gradient(circle, #ff6b35 0%, #f7931e 50%, #eb6e1f 100%);
+                border: 2px solid #ff0000;
+                border-radius: 50%;
+                box-shadow: 0 0 15px rgba(255, 107, 53, 0.8), 0 0 25px rgba(255, 0, 0, 0.5);
+                animation: fire-pulse 1.5s ease-in-out infinite;
+                position: relative;
+              ">
+                <style>
+                  @keyframes fire-pulse {
+                    0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 53, 0.8), 0 0 25px rgba(255, 0, 0, 0.5); }
+                    50% { box-shadow: 0 0 25px rgba(255, 107, 53, 1), 0 0 35px rgba(255, 0, 0, 0.8); }
+                  }
+                </style>
+                🔥
+              </div>`,
+              iconSize: [28, 28],
+              iconAnchor: [14, 14],
+            })}
+          >
+            <Popup>
+              <div className="text-black p-3 min-w-[240px]">
+                <h3 className="font-bold text-lg mb-2 text-red-600">🔥 Active Fire Hotspot</h3>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <p className="text-gray-600">Location</p>
+                    <p className="font-bold">{fire.country}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-gray-600 text-xs">Coordinates</p>
+                      <p className="font-bold text-xs">{fire.latitude.toFixed(3)}°, {fire.longitude.toFixed(3)}°</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs">Brightness</p>
+                      <p className="font-bold text-xs text-red-600">{fire.brightness.toFixed(0)}K</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-xs">Confidence</p>
+                    <p className="font-bold text-xs">{(fire.confidence).toFixed(0)}%</p>
                   </div>
                 </div>
               </div>

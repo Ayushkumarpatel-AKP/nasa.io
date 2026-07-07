@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import EmissionsSection from "../components/EmissionsSection";
 import MetricsSection from "../components/MetricsSection";
-import LivePollutantsTracker from "../components/LivePollutantsTracker";
 import FloatingNatureBot from "../components/FloatingNatureBot";
 import WeatherForecastSection from "../components/WeatherForecastSection";
 import FireDisasterTracker from "../components/FireDisasterTracker";
@@ -133,7 +132,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* GLOBAL EMISSIONS MAP SECTION */}
+      {/* GLOBAL EMISSIONS MAP SECTION WITH FIRE DATA */}
       <section ref={emissionsSectionRef} className="scroll-mt-24">
         <EmissionsSection
           searchLocation={searchLocation}
@@ -141,15 +140,12 @@ export default function Dashboard() {
         />
       </section>
 
-      {/* TRACKED MOLECULES & POLLUTANTS */}
-      <LivePollutantsTracker selectedLocation={mapClickLocation} />
-
       <WeatherForecastSection selectedLocation={mapClickLocation} />
 
       {/* ENVIRONMENTAL METRICS SECTION */}
       <MetricsSection />
 
-      {/* NASA FIRE DISASTER TRACKER */}
+      {/* NASA FIRE DISASTER TRACKER - REPLACES LIVE MONITORING */}
       <FireDisasterTracker />
 
       <FloatingNatureBot selectedLocation={mapClickLocation} />
