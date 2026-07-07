@@ -311,11 +311,72 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
+## � Security & Data Protection
+
+### ✅ Verified Security Measures
+
+#### API Keys & Secrets
+- ✅ **No hardcoded keys** - All sensitive data uses environment variables
+- ✅ **VITE_ prefix** ensures keys are NOT bundled in production
+- ✅ **Different keys per environment** (local, staging, production)
+- ✅ **Protected by .gitignore** - `.env.local` never committed
+
+#### User Authentication
+- ✅ **Firebase Authentication** with email verification required
+- ✅ **Password validation** - Minimum 6 characters
+- ✅ **Rate limiting** - Protection against brute force attacks
+- ✅ **Session security** - Secure token management
+
+#### Data Privacy
+- ✅ **Firestore Security Rules** - User-level access control
+- ✅ **HTTPS only** - All communications encrypted
+- ✅ **Email verified** - Required before data access
+- ✅ **No email logging** - Never exposed in console or logs
+- ✅ **GDPR compliant** - Users can delete accounts anytime
+
+#### Public APIs
+- ✅ **NASA EONET** - Public data (no authentication required)
+- ✅ **OpenWeatherMap** - API key in environment variables
+- ✅ **Map Tiles** - Free public services (OpenStreetMap, Esri)
+
+### Environment Variables Setup
+
+**Create `.env.local` in project root:**
+```bash
+# Copy from .env.example
+cp .env.example .env.local
+
+# Fill in your actual keys
+VITE_FIREBASE_API_KEY=your_key_here
+VITE_OPENWEATHER_KEY=your_key_here
+VITE_FIREBASE_PROJECT_ID=your_project_here
+VITE_APP_URL=http://localhost:5173
+```
+
+**For Vercel Production:**
+1. Go to Project Settings > Environment Variables
+2. Add each VITE_ variable
+3. Redeploy project
+
+### Security Audit Report
+
+📄 **Full security audit available** in [`SECURITY_AUDIT.md`](./SECURITY_AUDIT.md)
+
+Covers:
+- ✅ What's secure & why
+- ⚠️ Issues found & fixes applied
+- 🛡️ Defense mechanisms
+- 🔄 Regular security practices
+- 📞 Security contact & reporting
+
+---
+
 ## 📧 Contact & Support
 
 - **Author**: Ayush Kumar Patel
 - **Email**: ayush.kumarpatelai24@ssipmt.com
 - **GitHub**: [@Ayushkumarpatel-AKP](https://github.com/Ayushkumarpatel-AKP)
+- **Security Issues**: Email directly (do not create public GitHub issues)
 
 ---
 
