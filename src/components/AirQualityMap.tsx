@@ -1,5 +1,5 @@
 // src/components/AirQualityMap.tsx
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -158,7 +158,6 @@ export default function AirQualityMap({ searchLocation, onLocationSelect, fireHo
   const [mapLayer, setMapLayer] = useState<MapLayerType>("street");
   const [locationReport, setLocationReport] = useState<LocationReport | null>(null);
   const [showReport, setShowReport] = useState(false);
-  const mapRef = useRef<any>(null);
   const openWeatherKey = import.meta.env.VITE_OPENWEATHER_KEY;
   // NASA Token available for future satellite imagery integration
   // const nasaToken = import.meta.env.VITE_NASA_EARTHDATA_TOKEN;
