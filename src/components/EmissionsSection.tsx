@@ -88,46 +88,6 @@ function useCounter(target: number, duration = 1400) {
   return val;
 }
 
-const RadarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-emerald-200">
-    <circle cx="12" cy="12" r="8" opacity="0.8" />
-    <circle cx="12" cy="12" r="4" opacity="0.65" />
-    <path d="M12 12L18 8" />
-    <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
-  </svg>
-);
-
-const SatelliteIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <rect x="10" y="10" width="4" height="4" rx="1" />
-    <rect x="3" y="10" width="4" height="4" rx="0.8" opacity="0.85" />
-    <rect x="17" y="10" width="4" height="4" rx="0.8" opacity="0.85" />
-    <path d="M7 12h3M14 12h3M12 10V6" />
-    <circle cx="12" cy="5" r="1" fill="currentColor" stroke="none" />
-  </svg>
-);
-
-const BarsIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M4 20V12M10 20V8M16 20V5M20 20H3" />
-    <path d="M4 12h2M10 8h2M16 5h2" />
-  </svg>
-);
-
-const PinIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z" />
-    <circle cx="12" cy="11" r="2.2" />
-  </svg>
-);
-
-const GlobeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <circle cx="12" cy="12" r="9" />
-    <path d="M3 12h18M12 3c2.6 2.3 4 5.7 4 9s-1.4 6.7-4 9c-2.6-2.3-4-5.7-4-9s1.4-6.7 4-9z" />
-  </svg>
-);
-
 function LiveStat({ label, value, suffix, color, icon }: {
   label: string; value: number; suffix: string; color: string; icon: ReactNode;
 }) {
@@ -321,22 +281,22 @@ export default function EmissionsSection({ searchLocation, onLocationSelect }: P
             </div>
           </div>
 
-          {/* ── LIVE MONITORING ── */}
-          <div className="rounded-2xl border border-emerald-900/30 p-4 shadow-xl"
-            style={{ background: "linear-gradient(160deg,rgba(0,0,0,0.5),rgba(5,46,22,0.15))" }}>
+          {/* ── FIRE DISASTER MONITORING ── */}
+          <div className="rounded-2xl border border-red-900/30 p-4 shadow-xl"
+            style={{ background: "linear-gradient(160deg,rgba(0,0,0,0.5),rgba(139,0,0,0.15))" }}>
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-emerald-900/50 flex items-center justify-center border border-emerald-700/40">
-                <RadarIcon />
+              <div className="w-7 h-7 rounded-lg bg-red-900/50 flex items-center justify-center border border-red-700/40">
+                <span className="text-lg">🔥</span>
               </div>
-              <span className="text-xs font-bold text-emerald-300 uppercase tracking-widest" style={{ fontFamily: "Space Grotesk" }}>
-                Live Monitoring
+              <span className="text-xs font-bold text-red-400 uppercase tracking-widest" style={{ fontFamily: "Space Grotesk" }}>
+                Fire & Disaster Monitoring
               </span>
             </div>
             <div className="space-y-2">
-              <LiveStat label="NASA Satellites"   value={2456}  suffix=""  color="#60a5fa" icon={<SatelliteIcon />} />
-              <LiveStat label="Data Points / Day" value={14200} suffix="K" color="#a78bfa" icon={<BarsIcon />} />
-              <LiveStat label="Ground Stations"   value={9800}  suffix="+" color="#34d399" icon={<PinIcon />} />
-              <LiveStat label="Global Coverage"   value={987}   suffix="‰" color="#fb923c" icon={<GlobeIcon />} />
+              <LiveStat label="Active Hotspots"   value={fireHotspots.length}  suffix=""  color="#ff6b35" icon={<span className="text-base">🔥</span>} />
+              <LiveStat label="Avg Brightness"    value={fireHotspots.length > 0 ? Math.round((fireHotspots.reduce((sum: number, f: any) => sum + f.brightness, 0)) / fireHotspots.length) : 0} suffix="K" color="#ff4500" icon={<span className="text-base">🌡️</span>} />
+              <LiveStat label="Total Heat Energy"  value={fireHotspots.length > 0 ? Math.round(fireHotspots.reduce((sum: number, f: any) => sum + f.brightness, 0) / 100) : 0} suffix="K" color="#ff8c00" icon={<span className="text-base">⚡</span>} />
+              <LiveStat label="Avg Confidence"    value={fireHotspots.length > 0 ? Math.round((fireHotspots.reduce((sum: number, f: any) => sum + f.confidence, 0)) / fireHotspots.length) : 0} suffix="%" color="#ffa500" icon={<span className="text-base">📡</span>} />
             </div>
           </div>
 
