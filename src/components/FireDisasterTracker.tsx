@@ -17,32 +17,58 @@ interface Props {
   selectedFire?: FireHotspot | null;
 }
 
-// Country codes for flag emojis
-const COUNTRY_FLAGS: Record<string, string> = {
-  "Mozambique": "🇲🇿",
-  "United States": "🇺🇸",
-  "United Kingdom": "🇬🇧",
-  "Japan": "🇯🇵",
-  "Australia": "🇦🇺",
-  "France": "🇫🇷",
-  "India": "🇮🇳",
-  "Brazil": "🇧🇷",
-  "China": "🇨🇳",
-  "Russia": "🇷🇺",
-  "Canada": "🇨🇦",
-  "Mexico": "🇲🇽",
-  "Indonesia": "🇮🇩",
-  "Thailand": "🇹🇭",
-  "Philippines": "🇵🇭",
-  "South Africa": "🇿🇦",
-  "Kenya": "🇰🇪",
-  "Ghana": "🇬🇭",
-  "Nigeria": "🇳🇬",
-  "Egypt": "🇪🇬",
+const COUNTRY_TO_ISO2: Record<string, string> = {
+  "Mozambique": "MZ",
+  "United States": "US",
+  "United Kingdom": "GB",
+  "Japan": "JP",
+  "Australia": "AU",
+  "France": "FR",
+  "India": "IN",
+  "Brazil": "BR",
+  "China": "CN",
+  "Russia": "RU",
+  "Canada": "CA",
+  "Mexico": "MX",
+  "Indonesia": "ID",
+  "Thailand": "TH",
+  "Philippines": "PH",
+  "South Africa": "ZA",
+  "Kenya": "KE",
+  "Ghana": "GH",
+  "Nigeria": "NG",
+  "Egypt": "EG",
 };
 
-const getFlagEmoji = (country: string): string => {
-  return COUNTRY_FLAGS[country] || '🌍';
+const ISO2_TO_COUNTRY: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_TO_ISO2).map(([country, iso]) => [iso, country])
+);
+
+const getIsoCode = (countryOrCode: string): string | null => {
+  const value = countryOrCode.trim();
+  if (!value) return null;
+
+  const upper = value.toUpperCase();
+  if (/^[A-Z]{2}$/.test(upper)) return upper;
+
+  return COUNTRY_TO_ISO2[value] || null;
+};
+
+const getFlagEmoji = (countryOrCode: string): string => {
+  const iso = getIsoCode(countryOrCode);
+  if (!iso) return "🌍";
+
+  return String.fromCodePoint(...[...iso].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+};
+
+const getDisplayCountry = (countryOrCode: string): string => {
+  const value = countryOrCode.trim();
+  if (!value) return "Unknown";
+
+  const iso = getIsoCode(value);
+  if (!iso) return value;
+
+  return ISO2_TO_COUNTRY[iso] || value;
 };
 
 // Sample fire data - demonstrating real NASA fire coordinates
@@ -223,9 +249,14 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
                     {/* Header with flag and country */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-4xl">{getFlagEmoji(fire.country)}</span>
+                        <span
+                          className="text-4xl"
+                          style={{ fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif" }}
+                        >
+                          {getFlagEmoji(fire.country)}
+                        </span>
                         <div>
-                          <h4 className="text-lg font-bold text-white">{fire.country}</h4>
+                          <h4 className="text-lg font-bold text-white">{getDisplayCountry(fire.country)}</h4>
                           <p className="text-xs text-white/50">
                             {fire.daynight === 'N' ? '🌙 Night Detection' : '☀️ Day Detection'}
                           </p>

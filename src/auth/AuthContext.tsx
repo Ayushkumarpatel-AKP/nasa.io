@@ -34,14 +34,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const normalizeEmail = (email?: string | null) => (email || "").trim();
 
+const normalizeAppOrigin = (value: string) => {
+  const trimmed = value.trim().replace(/\/$/, "");
+
+  if (!trimmed) {
+    return "";
+  }
+
+  try {
+    return new URL(trimmed).origin;
+  } catch {
+    return trimmed;
+  }
+};
+
 const getAppUrl = () => {
-  const envUrl = (import.meta.env.VITE_APP_URL || "").trim().replace(/\/$/, "");
+  const envUrl = normalizeAppOrigin(import.meta.env.VITE_APP_URL || "");
 
   if (typeof window === "undefined") {
     return envUrl;
   }
 
-  const currentOrigin = window.location.origin.replace(/\/$/, "");
+  const currentOrigin = normalizeAppOrigin(window.location.origin);
   const hostname = window.location.hostname;
 
   const isLocal =
@@ -98,7 +112,7 @@ function getAuthErrorMessage(error: unknown) {
       return "Email quota exceeded for now. Please wait and retry later.";
     case "auth/unauthorized-continue-uri":
     case "auth/invalid-continue-uri":
-      return "Verification link domain is not authorized in Firebase Authentication settings.";
+      return `Verification link domain is not authorized in Firebase Authentication settings. Add ${appUrl} to Firebase Authentication > Settings > Authorized domains.`;
     default:
       return `${(error as { message?: string })?.message || "Authentication failed. Please retry."}${code ? ` (code: ${code})` : ""}`;
   }
