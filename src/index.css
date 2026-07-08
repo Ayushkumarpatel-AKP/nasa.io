@@ -28,6 +28,160 @@ body {
   background-attachment: fixed;
 }
 
+/* ── Header Space Motion ───────────────────────────────────── */
+.header-nav-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  background:
+    linear-gradient(120deg, rgba(2, 13, 14, 0.72), rgba(8, 20, 16, 0.8)),
+    radial-gradient(circle at 18% 30%, rgba(20, 184, 166, 0.24), transparent 52%),
+    radial-gradient(circle at 78% 80%, rgba(16, 185, 129, 0.16), transparent 48%);
+  box-shadow: inset 0 0 24px rgba(16, 185, 129, 0.1), 0 8px 26px rgba(0, 0, 0, 0.32);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.header-nav-shell::-webkit-scrollbar {
+  display: none;
+}
+
+.header-nav-shell::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  border: 1px solid rgba(94, 234, 212, 0.09);
+  pointer-events: none;
+}
+
+.header-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 102px;
+  border-radius: 999px;
+  padding: 0.52rem 0.95rem;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 220ms ease, background-color 220ms ease, transform 220ms ease;
+}
+
+.header-nav-link:hover {
+  color: #ccfbf1;
+  background-color: rgba(20, 83, 45, 0.48);
+  transform: translateY(-1px);
+}
+
+.header-nav-link-active {
+  color: #ecfdf5;
+  background: linear-gradient(140deg, rgba(22, 101, 52, 0.72), rgba(15, 118, 110, 0.62));
+  box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.35), 0 8px 16px rgba(16, 185, 129, 0.2);
+}
+
+.header-logo-orbit {
+  position: relative;
+  border-radius: 9999px;
+}
+
+.header-logo-orbit::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  opacity: 0.7;
+  animation: headerOrbitPulse 4s ease-in-out infinite;
+}
+
+.header-logo-orbit::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
+  border-radius: inherit;
+  border: 1px dashed rgba(94, 234, 212, 0.35);
+  animation: headerOrbitSpin 9s linear infinite;
+}
+
+.header-comet {
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 28%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(186, 230, 253, 0.95), transparent);
+  box-shadow: 0 0 10px rgba(125, 211, 252, 0.75);
+  transform: rotate(-8deg);
+  animation: headerCometSweep 7.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes headerOrbitPulse {
+  0%,
+  100% {
+    transform: scale(0.98);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes headerOrbitSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes headerCometSweep {
+  0% {
+    transform: translateX(0) rotate(-8deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.8;
+  }
+  26% {
+    transform: translateX(560%) rotate(-8deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(560%) rotate(-8deg);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .header-nav-link {
+    min-width: 96px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-nav-shell {
+    justify-content: flex-start;
+  }
+
+  .header-nav-link {
+    min-width: 90px;
+    padding: 0.48rem 0.82rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* ── Shooting Stars ─────────────────────────────────────────── */
 .shooting-stars-layer {
   position: fixed;

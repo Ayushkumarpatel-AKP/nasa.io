@@ -1,57 +1,55 @@
 // src/components/Header.tsx
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Header() {
   const { user, isAuthorized, loading, signOut } = useAuth();
-
-  const navLinkClass = "rounded-full px-3 py-2 text-xs font-medium transition border border-transparent text-slate-300 hover:text-emerald-300 hover:border-emerald-700/30 hover:bg-emerald-950/30";
+  const navItemClass = ({ isActive }: { isActive: boolean }) =>
+    `header-nav-link${isActive ? " header-nav-link-active" : ""}`;
 
   return (
-    <header className="border-b border-emerald-900/60 backdrop-blur-md bg-black/30 sticky top-0 z-50">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full border border-cyan-300/30 shadow-lg shadow-cyan-900/30 bg-cover bg-center"
-            style={{ backgroundImage: "url('/earth-texture.jpg')" }}
-            aria-hidden="true"
-          />
-          <span className="text-xl font-bold tracking-tight text-emerald-50" style={{fontFamily:'Space Grotesk'}}>NASA.io</span>
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md">
+      <div className="header-comet" aria-hidden="true" />
 
-        <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1 w-full scrollbar-thin">
-          <Link to="/" className={`${navLinkClass} shrink-0 ${window.location?.pathname === "/" ? "bg-emerald-900/40 border-emerald-700/40 text-emerald-200" : ""}`}>
-            Home
-          </Link>
-          <Link to="/dashboard" className={`${navLinkClass} shrink-0 ${window.location?.pathname === "/dashboard" ? "bg-emerald-900/40 border-emerald-700/40 text-emerald-200" : ""}`}>
-            Dashboard
-          </Link>
-          <Link to="/about" className={`${navLinkClass} shrink-0 ${window.location?.pathname === "/about" ? "bg-emerald-900/40 border-emerald-700/40 text-emerald-200" : ""}`}>
-            About
+      <nav className="relative mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+        <div className="flex items-center justify-between gap-3 lg:justify-start">
+          <Link to="/" className="group inline-flex items-center gap-3">
+            <div className="header-logo-orbit" aria-hidden="true">
+              <div
+                className="h-11 w-11 rounded-full border border-cyan-300/35 bg-cover bg-center shadow-lg shadow-cyan-900/30"
+                style={{ backgroundImage: "url('/earth-texture.jpg')" }}
+              />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.28em] text-emerald-200/75">Earth Monitoring</p>
+              <span className="text-[34px] font-bold leading-none tracking-tight text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+                NASA.io
+              </span>
+            </div>
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-slate-400 hover:text-emerald-300 transition font-medium text-sm">
+        <div className="header-nav-shell order-3 lg:order-2" role="navigation" aria-label="Primary">
+          <NavLink to="/" className={navItemClass}>
             Home
-          </Link>
-          <Link to="/dashboard" className="text-slate-400 hover:text-emerald-300 transition font-medium text-sm">
+          </NavLink>
+          <NavLink to="/dashboard" className={navItemClass}>
             Dashboard
-          </Link>
-          <Link to="/about" className="text-slate-400 hover:text-emerald-300 transition font-medium text-sm">
+          </NavLink>
+          <NavLink to="/about" className={navItemClass}>
             About
-          </Link>
+          </NavLink>
         </div>
 
-        <div className="flex items-center gap-2 self-end md:self-auto">
+        <div className="order-2 flex items-center justify-end gap-2 lg:order-3">
           {isAuthorized && user ? (
             <>
-              <span className="hidden md:inline text-xs text-slate-300 max-w-[180px] truncate">
+              <span className="hidden max-w-[220px] truncate text-xs text-slate-300 md:inline">
                 {user.email}
               </span>
               <button
                 onClick={signOut}
-                className="px-4 py-2 rounded-lg bg-emerald-900/40 border border-emerald-700/40 hover:bg-emerald-800/50 hover:border-emerald-600/60 transition text-sm font-medium text-emerald-200"
+                className="rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45"
               >
                 Log Out
               </button>
@@ -59,7 +57,7 @@ export default function Header() {
           ) : (
             <Link
               to="/login"
-              className={`px-4 py-2 rounded-lg bg-emerald-900/40 border border-emerald-700/40 hover:bg-emerald-800/50 hover:border-emerald-600/60 transition text-sm font-medium text-emerald-200 ${loading ? "pointer-events-none opacity-60" : ""}`}
+              className={`rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45 ${loading ? "pointer-events-none opacity-60" : ""}`}
             >
               {loading ? "Loading..." : "Sign In"}
             </Link>
