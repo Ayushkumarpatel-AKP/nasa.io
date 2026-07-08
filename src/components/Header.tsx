@@ -5,11 +5,11 @@ import { useAuth } from "../auth/AuthContext";
 
 export default function Header() {
   const { user, isAuthorized, loading, signOut } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
 
   useEffect(() => {
     const onScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsAtTop(window.scrollY <= 8);
     };
 
     onScroll();
@@ -21,7 +21,7 @@ export default function Header() {
     `header-nav-link${isActive ? " header-nav-link-active" : ""}`;
 
   return (
-    <header className={`site-header sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md ${isScrolled ? "header-scrolled" : ""}`}>
+    <header className={`site-header sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md ${isAtTop ? "header-at-top" : "header-away"}`}>
       <div className="header-comet" aria-hidden="true" />
 
       <nav className="header-inner relative mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
