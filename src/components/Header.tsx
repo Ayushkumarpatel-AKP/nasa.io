@@ -24,18 +24,18 @@ export default function Header() {
     <header className={`site-header sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md ${isScrolled ? "header-scrolled" : ""}`}>
       <div className="header-comet" aria-hidden="true" />
 
-      <nav className="relative mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-        <div className="flex items-center justify-between gap-3 lg:justify-start">
-          <Link to="/" className="group inline-flex items-center gap-3">
+      <nav className="header-inner relative mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+        <div className="header-brand-wrap flex items-center justify-between gap-3 lg:justify-start">
+          <Link to="/" className="header-brand group inline-flex items-center gap-3">
             <div className="header-logo-orbit" aria-hidden="true">
               <div
                 className="h-11 w-11 rounded-full border border-cyan-300/35 bg-cover bg-center shadow-lg shadow-cyan-900/30"
                 style={{ backgroundImage: "url('/earth-texture.jpg')" }}
               />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.28em] text-emerald-200/75">Earth Monitoring</p>
-              <span className="text-[34px] font-bold leading-none tracking-tight text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+            <div className="header-brand-text">
+              <p className="header-brand-kicker text-[10px] uppercase tracking-[0.28em] text-emerald-200/75">Earth Monitoring</p>
+              <span className="header-brand-title text-[34px] font-bold leading-none tracking-tight text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
                 NASA.io
               </span>
             </div>
