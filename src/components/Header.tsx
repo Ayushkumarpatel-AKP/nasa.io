@@ -1,14 +1,27 @@
 // src/components/Header.tsx
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Header() {
   const { user, isAuthorized, loading, signOut } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const navItemClass = ({ isActive }: { isActive: boolean }) =>
     `header-nav-link${isActive ? " header-nav-link-active" : ""}`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md">
+    <header className={`site-header sticky top-0 z-50 border-b border-emerald-900/60 bg-black/35 backdrop-blur-md ${isScrolled ? "header-scrolled" : ""}`}>
       <div className="header-comet" aria-hidden="true" />
 
       <nav className="relative mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
@@ -49,7 +62,7 @@ export default function Header() {
               </span>
               <button
                 onClick={signOut}
-                className="rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45"
+                className="header-action-btn rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45"
               >
                 Log Out
               </button>
@@ -57,7 +70,7 @@ export default function Header() {
           ) : (
             <Link
               to="/login"
-              className={`rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45 ${loading ? "pointer-events-none opacity-60" : ""}`}
+              className={`header-action-btn rounded-xl border border-emerald-600/40 bg-emerald-900/35 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-800/45 ${loading ? "pointer-events-none opacity-60" : ""}`}
             >
               {loading ? "Loading..." : "Sign In"}
             </Link>

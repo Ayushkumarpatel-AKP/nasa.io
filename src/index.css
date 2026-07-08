@@ -125,6 +125,36 @@ body {
   pointer-events: none;
 }
 
+.site-header {
+  transition: background-color 260ms ease, border-color 260ms ease, backdrop-filter 260ms ease;
+}
+
+.header-action-btn {
+  transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease, color 220ms ease;
+}
+
+.site-header.header-scrolled {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(16, 185, 129, 0.2);
+  backdrop-filter: blur(3px);
+}
+
+.site-header.header-scrolled .header-nav-shell {
+  background: transparent;
+  border-color: rgba(16, 185, 129, 0.12);
+  box-shadow: none;
+}
+
+.site-header.header-scrolled .header-nav-shell::after {
+  border-color: rgba(94, 234, 212, 0.04);
+}
+
+.site-header.header-scrolled .header-action-btn {
+  background: transparent;
+  border-color: rgba(16, 185, 129, 0.2);
+  box-shadow: none;
+}
+
 @keyframes headerOrbitPulse {
   0%,
   100% {
