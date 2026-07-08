@@ -220,10 +220,10 @@ export default function EmissionsSection({ searchLocation, onLocationSelect, sel
   const maxAqi = Math.max(...cities.map(c => c.aqi ?? 0), 1);
 
   return (
-    <section className="py-8" id="global-emissions-map">
-      <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
+    <section className="py-6 sm:py-8" id="global-emissions-map">
+      <div className="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
         <div>
-          <h2 className="text-2xl font-bold mb-1 text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+          <h2 className="mb-1 text-xl font-bold text-emerald-50 sm:text-2xl" style={{ fontFamily: "Space Grotesk" }}>
             Global Emissions Map
           </h2>
           <p className="text-sm text-slate-400">
@@ -237,18 +237,18 @@ export default function EmissionsSection({ searchLocation, onLocationSelect, sel
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-6">
         {/* ── Map ── */}
-        <div className="lg:col-span-3 rounded-2xl p-5 border border-emerald-900/50 hover:border-emerald-700/50 transition-all duration-300 shadow-2xl backdrop-blur-sm"
+        <div className="rounded-2xl border border-emerald-900/50 p-4 shadow-2xl backdrop-blur-sm transition-all duration-300 hover:border-emerald-700/50 lg:col-span-3 lg:p-5"
           style={{ background: "linear-gradient(135deg,rgba(0,0,0,0.4),rgba(5,46,22,0.2))" }}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-base font-semibold text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+              <h3 className="text-sm font-semibold text-emerald-50 sm:text-base" style={{ fontFamily: "Space Grotesk" }}>
                 Worldwide Air Quality
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">WAQI & OpenWeather · Click map for local report</p>
+              <p className="mt-0.5 text-[11px] text-slate-500 sm:text-xs">WAQI & OpenWeather · Click map for local report</p>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-700/40 bg-emerald-950/60 text-emerald-300 text-xs font-semibold">
+            <div className="flex items-center gap-1.5 rounded-full border border-emerald-700/40 bg-emerald-950/60 px-3 py-1 text-xs font-semibold text-emerald-300">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               Live
             </div>
@@ -257,16 +257,16 @@ export default function EmissionsSection({ searchLocation, onLocationSelect, sel
         </div>
 
         {/* ── Side Panel ── */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="flex flex-col gap-3 lg:col-span-2 lg:gap-4">
 
           {/* ── TOP POLLUTED CITIES ── */}
-          <div className="rounded-2xl border border-red-900/30 overflow-hidden shadow-xl"
+          <div className="overflow-hidden rounded-2xl border border-red-900/30 shadow-xl"
             style={{ background: "linear-gradient(160deg,rgba(0,0,0,0.5),rgba(127,29,29,0.08))" }}>
 
             <div className="flex items-center justify-between px-4 pt-4 pb-2">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-red-900/40 flex items-center justify-center text-sm">🔥</div>
-                <span className="text-xs font-bold text-red-300 uppercase tracking-widest" style={{ fontFamily: "Space Grotesk" }}>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-red-300 sm:text-xs" style={{ fontFamily: "Space Grotesk" }}>
                   Top Polluted Cities
                 </span>
               </div>
@@ -298,7 +298,7 @@ export default function EmissionsSection({ searchLocation, onLocationSelect, sel
                       </span>
 
                       {/* city name */}
-                      <span className="flex-1 text-xs font-medium text-slate-200 truncate" style={{ fontFamily: "Space Grotesk" }}>
+                      <span className="flex-1 truncate text-xs font-medium text-slate-200" style={{ fontFamily: "Space Grotesk" }}>
                         {c.city}
                       </span>
 

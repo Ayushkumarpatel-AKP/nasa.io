@@ -15,6 +15,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Space Grotesk', system-ui, sans-serif;
   font-weight: 600;
@@ -26,6 +34,7 @@ body {
   min-height: 100vh;
   background: radial-gradient(ellipse at top left, #0f2318 0%, #0b160f 40%, #111a0e 70%, #0d1a12 100%);
   background-attachment: fixed;
+  overflow-x: hidden;
 }
 
 /* ── Header Space Motion ───────────────────────────────────── */

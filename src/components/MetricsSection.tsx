@@ -139,7 +139,7 @@ function AQICard({ historical, predicted, r2, onClick, selected }: { historical:
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
-      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+      className={`rounded-2xl border bg-black/25 p-2.5 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2 cursor-pointer outline-none sm:p-3 sm:gap-2.5 ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
     >
       <div className="flex justify-between items-start">
         <div>
@@ -153,7 +153,7 @@ function AQICard({ historical, predicted, r2, onClick, selected }: { historical:
       </div>
 
       {/* Gauge */}
-      <svg viewBox="0 0 200 100" className="w-full" style={{ height: 78 }}>
+      <svg viewBox="0 0 200 100" className="w-full" style={{ height: 68 }}>
         {/* zone arcs (thick track) */}
         {zoneArcs.map((a, i) => (
           <path key={i} d={a.path} fill="none" stroke={a.color} strokeWidth="10" opacity="0.30"/>
@@ -195,7 +195,7 @@ function AQICard({ historical, predicted, r2, onClick, selected }: { historical:
       {/* plain-English message */}
       <p className="text-[11px] text-center font-medium leading-snug" style={{ color: zone.color }}>{zone.phrase}</p>
 
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07] text-center">
+      <div className="grid grid-cols-3 gap-1.5 border-t border-white/[0.07] pt-2 text-center">
         <div>
           <p className="text-[9px] text-slate-500 mb-0.5">Now</p>
           <p className="text-sm font-bold" style={{ color: zone.color }}>{Math.round(current)}</p>
@@ -249,7 +249,7 @@ function OzoneCard({ historical, predicted, r2, onClick, selected }: { historica
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
-      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+      className={`rounded-2xl border bg-black/25 p-2.5 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2 cursor-pointer outline-none sm:p-3 sm:gap-2.5 ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
     >
       <div className="flex justify-between items-start">
         <div>
@@ -264,7 +264,7 @@ function OzoneCard({ historical, predicted, r2, onClick, selected }: { historica
 
       {/* Shield ring + Earth */}
       <div className="flex items-center gap-3">
-        <svg viewBox="0 0 120 120" style={{ width: 96, height: 96, flexShrink: 0 }}>
+        <svg viewBox="0 0 120 120" style={{ width: 88, height: 88, flexShrink: 0 }}>
           {/* glow */}
           <circle cx={CX} cy={CY} r={R+10} fill="none" stroke={badge[1]} strokeWidth="18" opacity="0.06"/>
           {/* track */}
@@ -385,7 +385,7 @@ function CO2Card({ historical, predicted, r2, onClick, selected }: { historical:
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
-      className={`rounded-2xl p-3 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-red-950/20 flex flex-col gap-2.5 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+      className={`rounded-2xl border bg-black/25 p-2.5 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-red-950/20 flex flex-col gap-2 cursor-pointer outline-none sm:p-3 sm:gap-2.5 ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
     >
       <div className="flex justify-between items-start">
         <div>
@@ -399,7 +399,7 @@ function CO2Card({ historical, predicted, r2, onClick, selected }: { historical:
 
       {/* Chart with reference lines */}
       <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-2">
-        <svg viewBox={`0 0 ${CW} ${CH}`} className="w-full rounded-lg" style={{ height: 88 }} preserveAspectRatio="none">
+        <svg viewBox={`0 0 ${CW} ${CH}`} className="w-full rounded-lg" style={{ height: 74 }} preserveAspectRatio="none">
           <defs>
             <linearGradient id="co2-area" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%"   stopColor="#f87171" stopOpacity="0.38"/>
@@ -455,7 +455,7 @@ function CO2Card({ historical, predicted, r2, onClick, selected }: { historical:
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07]">
+      <div className="grid grid-cols-3 gap-1.5 border-t border-white/[0.07] pt-2">
         <div>
           <p className="text-[9px] text-slate-500 mb-0.5">Current</p>
           <p className="text-sm font-bold text-red-400">{current.toFixed(1)}<span className="text-[9px] text-slate-500 ml-0.5">ppm</span></p>
@@ -503,7 +503,7 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick?.(); }}
-      className={`rounded-2xl p-4 bg-black/25 border transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-3 cursor-pointer outline-none ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
+      className={`rounded-2xl border bg-black/25 p-3 transition-all duration-300 shadow-lg backdrop-blur-sm hover:bg-emerald-950/30 flex flex-col gap-2.5 cursor-pointer outline-none sm:p-4 sm:gap-3 ${selected ? "border-emerald-400/70 ring-1 ring-emerald-400/50 shadow-emerald-500/10" : "border-emerald-900/50 hover:border-emerald-700/60"}`}
     >
       <div className="flex justify-between items-start">
         <div>
@@ -513,7 +513,7 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
         <span className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badge[1]}`}>{badge[0]}</span>
       </div>
       <div>
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full rounded-lg" style={{ height: 88 }} preserveAspectRatio="none">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full rounded-lg" style={{ height: 72 }} preserveAspectRatio="none">
           <defs>
             <linearGradient id={`${gradId}-fill`} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%"   stopColor={hex} stopOpacity="0.32" />
@@ -539,7 +539,7 @@ function MetricCard({ title, subtitle, source, historical, predicted, unit, badg
           <span>Jan'24</span><span>Jan'25</span><span>Mar'26 →</span>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.07] text-center">
+      <div className="grid grid-cols-3 gap-1.5 border-t border-white/[0.07] pt-2 text-center">
         <div>
           <p className="text-[9px] text-slate-500 mb-0.5">Now</p>
           <p className="text-sm font-bold" style={{ color: hex }}>
@@ -760,8 +760,8 @@ export default function MetricsSection() {
   }, [selectedMetric, aqiData, aqiForecast, aqiReg.r2, co2Data, co2Forecast, co2Reg.r2, oceanForecast, oceanReg.r2, ozoneForecast, ozoneReg.r2]);
 
   return (
-    <section className="py-8">
-      <div className="rounded-[1.75rem] border border-emerald-800/35 bg-[radial-gradient(circle_at_top_left,rgba(20,83,45,0.22),transparent_40%),linear-gradient(180deg,rgba(3,10,6,0.96),rgba(2,8,4,0.96))] p-5 shadow-2xl shadow-black/35">
+    <section className="py-6 sm:py-8">
+      <div className="rounded-[1.75rem] border border-emerald-800/35 bg-[radial-gradient(circle_at_top_left,rgba(20,83,45,0.22),transparent_40%),linear-gradient(180deg,rgba(3,10,6,0.96),rgba(2,8,4,0.96))] p-4 shadow-2xl shadow-black/35 sm:p-5">
         <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-emerald-500/80">Environmental Intelligence</p>
@@ -781,7 +781,7 @@ export default function MetricsSection() {
             </div>
           </div>
 
-          <div className="max-w-md rounded-2xl border border-emerald-800/40 bg-black/30 px-4 py-3 backdrop-blur-sm">
+          <div className="max-w-full rounded-2xl border border-emerald-800/40 bg-black/30 px-4 py-3 backdrop-blur-sm md:max-w-md">
             <p className="text-[10px] uppercase tracking-[0.25em] text-emerald-500/80">Selected output</p>
             <div className="mt-2 flex items-start justify-between gap-4">
               <div>
@@ -793,7 +793,7 @@ export default function MetricsSection() {
               </span>
             </div>
             <p className="mt-2 text-sm text-slate-300 leading-relaxed">{selectedInsight.summary}</p>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs text-slate-400">
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs text-slate-400 sm:grid-cols-3">
               <div className="rounded-xl border border-white/5 bg-white/5 px-3 py-2">
                 <div className="text-[10px] text-slate-500">Current</div>
                 <div className="mt-1 text-sm font-semibold text-emerald-50">{selectedInsight.current}</div>
@@ -832,7 +832,7 @@ export default function MetricsSection() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
           <AQICard
             historical={aqiData} predicted={aqiForecast} r2={aqiReg.r2}
             selected={selectedMetric === "aqi"}

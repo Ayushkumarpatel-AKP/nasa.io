@@ -163,11 +163,11 @@ export default function WeatherForecastSection({ selectedLocation }: Props) {
   }, [forecast]);
 
   return (
-    <section className="rounded-3xl border border-emerald-800/40 bg-gradient-to-br from-[#04110a] via-[#07180d] to-[#021008] p-6 shadow-2xl shadow-black/40 backdrop-blur-md">
+    <section className="rounded-3xl border border-emerald-800/40 bg-gradient-to-br from-[#04110a] via-[#07180d] to-[#021008] p-4 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-emerald-500/80">Weather Forecast</p>
-          <h2 className="mt-1 text-2xl font-bold text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+          <h2 className="mt-1 text-xl font-bold text-emerald-50 sm:text-2xl" style={{ fontFamily: "Space Grotesk" }}>
             7-Day Nature Outlook
           </h2>
           <p className="mt-1 text-sm text-emerald-300/75">
@@ -175,7 +175,7 @@ export default function WeatherForecastSection({ selectedLocation }: Props) {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 text-center text-xs text-emerald-200/80">
+        <div className="grid grid-cols-2 gap-2 text-center text-xs text-emerald-200/80 sm:grid-cols-3 sm:gap-3">
           <div className="rounded-2xl border border-emerald-800/40 bg-emerald-950/60 px-3 py-2">
             <div className="text-emerald-400">Temp</div>
             <div className="mt-1 text-base font-semibold text-emerald-50">{currentTemp ?? "--"}°C</div>
@@ -206,23 +206,23 @@ export default function WeatherForecastSection({ selectedLocation }: Props) {
         )}
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-7">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
         {forecast.map((day, index) => (
           <div
             key={`${day.date}-${index}`}
-            className="rounded-2xl border border-emerald-800/40 bg-emerald-950/45 px-3 py-4 text-center shadow-lg shadow-black/20"
+            className="rounded-2xl border border-emerald-800/40 bg-emerald-950/45 px-2.5 py-3 text-center shadow-lg shadow-black/20 sm:px-3 sm:py-4"
           >
-            <p className="text-sm font-semibold text-emerald-50" style={{ fontFamily: "Space Grotesk" }}>
+            <p className="text-xs font-semibold text-emerald-50 sm:text-sm" style={{ fontFamily: "Space Grotesk" }}>
               {day.dayName}
             </p>
-            <div className="mt-3 text-3xl">{iconFor(day.description)}</div>
-            <p className="mt-2 text-xs text-emerald-300/80 capitalize">{day.description}</p>
-            <div className="mt-3 flex items-center justify-center gap-2 text-sm text-emerald-100">
+            <div className="mt-2 text-2xl sm:mt-3 sm:text-3xl">{iconFor(day.description)}</div>
+            <p className="mt-1.5 text-[10px] capitalize text-emerald-300/80 sm:mt-2 sm:text-xs">{day.description}</p>
+            <div className="mt-2 flex items-center justify-center gap-2 text-xs text-emerald-100 sm:mt-3 sm:text-sm">
               <span className="font-semibold text-emerald-50">{day.tempMax}°</span>
               <span className="text-emerald-500">/</span>
               <span>{day.tempMin}°</span>
             </div>
-            <p className="mt-2 text-[11px] text-emerald-300/70">Rain {day.rainChance}%</p>
+            <p className="mt-1.5 text-[10px] text-emerald-300/70 sm:mt-2 sm:text-[11px]">Rain {day.rainChance}%</p>
           </div>
         ))}
       </div>

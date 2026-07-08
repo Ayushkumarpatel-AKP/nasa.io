@@ -103,10 +103,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:space-y-8">
       {/* SEARCH BAR */}
-      <div className="bg-emerald-950/40 border border-emerald-800/40 rounded-2xl p-6 backdrop-blur-md shadow-xl shadow-black/30">
-        <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="rounded-2xl border border-emerald-800/40 bg-emerald-950/40 p-4 shadow-xl shadow-black/30 backdrop-blur-md sm:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-3xl">🌍</span>
             <div>
@@ -115,17 +115,17 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <form onSubmit={handleSearch} className="flex-1 flex gap-3 w-full md:w-auto">
+          <form onSubmit={handleSearch} className="flex w-full flex-col gap-3 md:flex-row md:flex-1 md:w-auto">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Enter city name (e.g., Paris, New York, Tokyo)..."
-              className="flex-1 px-4 py-3 bg-black/30 border border-emerald-800/40 rounded-xl text-emerald-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-600/60 focus:border-emerald-600/60 transition"
+              className="flex-1 rounded-xl border border-emerald-800/40 bg-black/30 px-4 py-3 text-emerald-50 placeholder-slate-500 transition focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-600/60"
             />
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-emerald-700 to-green-700 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-green-600 transition-all shadow-lg hover:shadow-emerald-900/50"
+              className="rounded-xl bg-gradient-to-r from-emerald-700 to-green-700 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:from-emerald-600 hover:to-green-600 hover:shadow-emerald-900/50 md:w-auto"
             >
               Search
             </button>

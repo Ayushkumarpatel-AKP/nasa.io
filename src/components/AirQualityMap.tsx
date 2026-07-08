@@ -286,7 +286,7 @@ export default function AirQualityMap({ searchLocation, onLocationSelect, fireHo
   };
 
   return (
-    <div className="relative w-full h-[500px] rounded-lg overflow-hidden border border-white/10">
+    <div className="relative h-[360px] w-full overflow-hidden rounded-lg border border-white/10 sm:h-[500px]">
       <MapContainer
         center={[20, 0]}
         zoom={2}

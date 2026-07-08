@@ -25,7 +25,7 @@ export default function FeatureCard({ icon, title, description }: Props) {
     <div className="relative flex justify-center items-center">
       {/* Circular flippable card container */}
       <div
-        className="relative w-40 h-40 cursor-pointer"
+        className="relative h-36 w-36 cursor-pointer sm:h-40 sm:w-40"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{ perspective: '1000px' }}

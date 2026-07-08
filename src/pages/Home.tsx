@@ -112,12 +112,12 @@ const IconEarth = () => (
 
 export default function Home() {
   return (
-    <div className="max-w-7xl mx-auto px-6 space-y-16">
+    <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8 lg:space-y-16">
       {/* HERO SECTION */}
       <HeroIntro />
 
       {/* STATS OVERVIEW */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 sm:gap-6">
         <StatsCard
           icon="🌡️"
           title="Avg Temperature"
@@ -179,7 +179,7 @@ export default function Home() {
             </div>
 
             {/* Level 2 - 2 cards (Middle) */}
-            <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+            <div className="grid grid-cols-1 gap-4 mx-auto max-w-xl sm:grid-cols-2">
               <FeatureCard
                 icon={<IconAnalytics />}
                 title="Data Analytics"
@@ -193,7 +193,7 @@ export default function Home() {
             </div>
 
             {/* Level 3 - 3 cards (Base of pyramid) */}
-            <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 gap-4 mx-auto max-w-3xl sm:grid-cols-2 lg:grid-cols-3">
               <FeatureCard
                 icon={<IconRealtime />}
                 title="Real-time Updates"

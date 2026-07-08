@@ -158,11 +158,11 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
   };
 
   return (
-    <section className="py-16 px-4 sm:px-6">
+    <section className="px-4 py-10 sm:px-6 sm:py-16">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-400/10 border border-red-400/30 text-red-400 text-sm font-medium mb-6">
+        <div className="mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-400/10 px-4 py-2 text-sm font-medium text-red-400 mb-4 sm:mb-6">
             <span className="relative flex h-2 w-2">
               <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
@@ -170,37 +170,37 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
             NASA FIRMS Active Fires - Live Data
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+          <h2 className="mb-3 text-3xl font-bold tracking-tight md:mb-4 md:text-5xl">
             Active Fire <span className="text-red-400">Hotspots</span> Worldwide
           </h2>
-          <p className="text-lg text-white/70">
+          <p className="text-sm text-white/70 sm:text-lg">
             Real-time satellite detection from NASA VIIRS. Click any card for detailed information.
           </p>
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-          <div className="rounded-xl bg-gradient-to-br from-red-900/20 to-orange-900/20 border border-red-700/30 p-6">
+        <div className="mb-8 grid grid-cols-2 gap-3 md:mb-12 md:grid-cols-3 md:gap-4">
+          <div className="rounded-xl border border-red-700/30 bg-gradient-to-br from-red-900/20 to-orange-900/20 p-4 sm:p-6">
             <p className="text-red-400/70 text-sm font-medium mb-2">Total Active Hotspots</p>
-            <p className="text-4xl font-bold text-red-300">{fires.length}</p>
+            <p className="text-3xl font-bold text-red-300 sm:text-4xl">{fires.length}</p>
           </div>
-          <div className="rounded-xl bg-gradient-to-br from-orange-900/20 to-yellow-900/20 border border-orange-700/30 p-6">
+          <div className="rounded-xl border border-orange-700/30 bg-gradient-to-br from-orange-900/20 to-yellow-900/20 p-4 sm:p-6">
             <p className="text-orange-400/70 text-sm font-medium mb-2">Avg Brightness</p>
-            <p className="text-4xl font-bold text-orange-300">
+            <p className="text-3xl font-bold text-orange-300 sm:text-4xl">
               {fires.length > 0 ? (fires.reduce((sum, f) => sum + f.brightness, 0) / fires.length).toFixed(0) : 0}K
             </p>
           </div>
-          <div className="rounded-xl bg-gradient-to-br from-yellow-900/20 to-amber-900/20 border border-yellow-700/30 p-6">
+          <div className="rounded-xl border border-yellow-700/30 bg-gradient-to-br from-yellow-900/20 to-amber-900/20 p-4 sm:p-6">
             <p className="text-yellow-400/70 text-sm font-medium mb-2">Avg Confidence</p>
-            <p className="text-4xl font-bold text-yellow-300">
+            <p className="text-3xl font-bold text-yellow-300 sm:text-4xl">
               {fires.length > 0 ? (fires.reduce((sum, f) => sum + f.confidence, 0) / fires.length).toFixed(0) : 0}%
             </p>
           </div>
         </div>
 
         {/* Fire Cards Grid */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-white">Detection Details</h3>
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-lg font-semibold text-white sm:text-xl">Detection Details</h3>
           
           {loading && (
             <div className="text-center py-12 text-white/50">
@@ -222,7 +222,7 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
           )}
 
           {/* Grid of Fire Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4">
             {fires.map((fire, idx) => {
               const isSelected = selectedFire && 
                 selectedFire.latitude === fire.latitude && 
@@ -232,7 +232,7 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
                 <div
                   key={idx}
                   onClick={() => handleCardClick(fire)}
-                  className={`group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-900/30 to-orange-900/20 border p-5 transition-all duration-300 cursor-pointer ${
+                  className={`group relative overflow-hidden rounded-xl border bg-gradient-to-br from-red-900/30 to-orange-900/20 p-4 transition-all duration-300 cursor-pointer sm:p-5 ${
                     isSelected
                       ? 'border-red-400/80 shadow-lg shadow-red-900/50 scale-105'
                       : 'border-red-700/40 hover:border-red-600/70 hover:shadow-lg hover:shadow-red-900/30'
@@ -247,44 +247,44 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
 
                   <div className="relative z-10">
                     {/* Header with flag and country */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="mb-3 flex items-start justify-between sm:mb-4">
                       <div className="flex items-center gap-3">
                         <span
-                          className="text-4xl"
+                          className="text-3xl sm:text-4xl"
                           style={{ fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif" }}
                         >
                           {getFlagEmoji(fire.country)}
                         </span>
                         <div>
-                          <h4 className="text-lg font-bold text-white">{getDisplayCountry(fire.country)}</h4>
-                          <p className="text-xs text-white/50">
+                          <h4 className="text-base font-bold text-white sm:text-lg">{getDisplayCountry(fire.country)}</h4>
+                          <p className="text-[10px] text-white/50 sm:text-xs">
                             {fire.daynight === 'N' ? '🌙 Night Detection' : '☀️ Day Detection'}
                           </p>
                         </div>
                       </div>
-                      <div className="text-2xl">🔥</div>
+                      <div className="text-xl sm:text-2xl">🔥</div>
                     </div>
 
                     {/* Main metrics */}
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="bg-black/30 rounded-lg p-3 border border-red-700/30">
-                        <p className="text-xs text-red-400/70 font-medium mb-1">Brightness</p>
-                        <p className="text-xl font-bold text-red-300">{fire.brightness.toFixed(0)}K</p>
+                    <div className="mb-3 grid grid-cols-3 gap-2 sm:mb-4 sm:gap-3">
+                      <div className="rounded-lg border border-red-700/30 bg-black/30 p-2.5 sm:p-3">
+                        <p className="mb-1 text-[10px] font-medium text-red-400/70 sm:text-xs">Brightness</p>
+                        <p className="text-lg font-bold text-red-300 sm:text-xl">{fire.brightness.toFixed(0)}K</p>
                       </div>
-                      <div className="bg-black/30 rounded-lg p-3 border border-orange-700/30">
-                        <p className="text-xs text-orange-400/70 font-medium mb-1">Confidence</p>
-                        <p className="text-xl font-bold text-orange-300">{fire.confidence.toFixed(0)}%</p>
+                      <div className="rounded-lg border border-orange-700/30 bg-black/30 p-2.5 sm:p-3">
+                        <p className="mb-1 text-[10px] font-medium text-orange-400/70 sm:text-xs">Confidence</p>
+                        <p className="text-lg font-bold text-orange-300 sm:text-xl">{fire.confidence.toFixed(0)}%</p>
                       </div>
-                      <div className="bg-black/30 rounded-lg p-3 border border-yellow-700/30">
-                        <p className="text-xs text-yellow-400/70 font-medium mb-1">Distance</p>
-                        <p className="text-xl font-bold text-yellow-300">
+                      <div className="rounded-lg border border-yellow-700/30 bg-black/30 p-2.5 sm:p-3">
+                        <p className="mb-1 text-[10px] font-medium text-yellow-400/70 sm:text-xs">Distance</p>
+                        <p className="text-lg font-bold text-yellow-300 sm:text-xl">
                           {Math.sqrt(fire.latitude ** 2 + fire.longitude ** 2).toFixed(0)}km
                         </p>
                       </div>
                     </div>
 
                     {/* Coordinates and time */}
-                    <div className="space-y-2 pt-4 border-t border-white/10">
+                    <div className="space-y-2 border-t border-white/10 pt-3 sm:pt-4">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-white/50">Coordinates</span>
                         <span className="text-white/80 font-mono">
@@ -300,7 +300,7 @@ export default function FireDisasterTracker({ onFireSelect, selectedFire = null 
                     </div>
 
                     {/* Click hint */}
-                    <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="mt-3 border-t border-white/10 pt-3">
                       <p className="text-[10px] text-emerald-400/60 text-center group-hover:text-emerald-400/100 transition-colors">
                         {isSelected ? '✓ Selected - Showing on map' : '👆 Click to view on map'}
                       </p>

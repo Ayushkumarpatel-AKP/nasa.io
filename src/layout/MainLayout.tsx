@@ -17,11 +17,11 @@ export default function MainLayout({ children }: Props) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative overflow-x-hidden">
       <ShootingStars />
-      <div className="relative z-10">
+      <div className="relative z-10 overflow-x-hidden">
         <Header />
-        <main>{children}</main>
+        <main className="overflow-x-hidden">{children}</main>
       </div>
     </div>
   );
