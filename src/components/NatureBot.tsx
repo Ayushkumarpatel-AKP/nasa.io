@@ -36,37 +36,108 @@ function aqiColor(aqi: number) {
   return             { bg: '#3f0017', ring: '#f43f5e', label: 'Hazardous',       emoji: '💀' };
 }
 
-/* ─── Call Gemini ─────────────────────────────────────────── */
+/* ─── Call LLM (OpenRouter / Gemini) ───────────────────────── */
 async function askGemini(messages: { role: string; parts: { text: string }[] }[]): Promise<string> {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-    {
+  if (!GEMINI_KEY) {
+    throw new Error('API Key missing');
+  }
+
+  const systemPrompt = `You are Terra — an environmental & weather AI assistant on NASA.io.
+
+CRITICAL RESPONSE FORMAT & RULES:
+1. DO NOT use markdown bold asterisks (do not use **text** or *text*). Output clean plain text only.
+2. Keep your response SHORT, CONCISE, and PROFESSIONAL (Under 100 words).
+3. Always structure responses like this:
+
+Summary: [1 short sentence with City & AQI / Weather status]
+
+Quick Advice:
+• Outdoor Activity: Safe / Moderated / Avoid
+• Sensitive Groups: Short 1-line note
+• Mask Needed: Yes / No
+
+Key Factors:
+• Dominant Pollutant: [Name & Value]
+• Weather Note: [1 short line]
+
+Keep layout clean, scannable, and extremely professional without markdown special characters like **.`;
+
+  // Check if OpenRouter key (sk-or-v1-...) or standard Google Gemini key
+  const isOpenRouter = GEMINI_KEY.startsWith('sk-or-');
+
+  if (isOpenRouter) {
+    // OpenRouter API format (OpenAI compatible)
+    const formattedMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map(m => ({
+        role: m.role === 'model' ? 'assistant' : m.role,
+        content: m.parts.map(p => p.text).join('\n')
+      }))
+    ];
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GEMINI_KEY}`,
+        'HTTP-Referer': import.meta.env.VITE_APP_URL || 'https://nasa-io-eight.vercel.app',
+        'X-Title': 'NASA.io Terra Bot'
+      },
       body: JSON.stringify({
-        contents: messages,
-        systemInstruction: {
-          parts: [{
-            text: `You are Terra — an ancient, wise nature spirit who has watched over Earth's skies for millennia. 
-You speak warmly, poetically yet clearly, as if you are the voice of the forest and sky. 
-You deeply care about human health and the planet.
-You respond in 3–5 short paragraphs using nature metaphors where natural (e.g. "the air carries a burden today…").
-You always end with a crisp, clear health recommendation list (bullet points):
-• Should they go outside? 
-• Should they wear a mask?
-• Safe for children / elderly?
-• Best time of day to go out?
-• Any special precautions?
-Keep total response under 250 words. Be empathetic and caring.`
-          }]
+        model: 'google/gemini-2.5-flash',
+        messages: formattedMessages,
+        temperature: 0.5,
+        max_tokens: 300
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.error('OpenRouter error:', res.status, errText);
+      // Fallback attempt with a widely available free model if gemini fails
+      const fallbackRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GEMINI_KEY}`
         },
-        generationConfig: { temperature: 0.85, maxOutputTokens: 512 }
-      }),
+        body: JSON.stringify({
+          model: 'openrouter/auto',
+          messages: formattedMessages,
+          temperature: 0.5,
+          max_tokens: 300
+        })
+      });
+
+      if (!fallbackRes.ok) {
+        throw new Error(`OpenRouter API error: ${res.status}`);
+      }
+      const fallbackData = await fallbackRes.json();
+      return fallbackData.choices?.[0]?.message?.content ?? 'I could not read the winds. Please try again.';
     }
-  );
-  if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'I could not read the winds. Please try again.';
+
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content ?? 'I could not read the winds. Please try again.';
+  } else {
+    // Native Google Gemini API format
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: messages,
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          generationConfig: { temperature: 0.85, maxOutputTokens: 512 }
+        }),
+      }
+    );
+    if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'I could not read the winds. Please try again.';
+  }
 }
 
 /* ─── Fetch WAQI ──────────────────────────────────────────── */
@@ -105,13 +176,11 @@ Provide health predictions and whether they should venture outside today.`;
     : 'data unavailable';
 
   return `Location: ${locStr} (sensor: ${city})
-Current AQI: ${aqi} — ${label}
+Current AQI: ${aqi} (${label})
 Dominant pollutant: ${dominentpol ?? 'unknown'}
-Pollutant breakdown: ${pollutants}
+Pollutants: ${pollutants}
 
-Based on this real-time environmental data, give the person a warm, nature-spirited health assessment.
-Tell them whether they should go outside today, any health risks, and what precautions to take.
-Mention specific pollutants that concern you and what causes them in this region.`;
+Provide a concise, professional health & air quality advisory for ${locStr} following your short bulleted format.`;
 }
 
 /* ─── Leaf decorations ────────────────────────────────────── */
@@ -301,13 +370,13 @@ export default function NatureBot({ selectedLocation }: { selectedLocation: Loca
               </div>
             )}
 
-            <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
               ${msg.role === 'bot'
                 ? 'rounded-tl-none bg-emerald-950/80 border border-emerald-800/30 text-emerald-100'
                 : 'rounded-tr-none bg-emerald-800/30 border border-emerald-600/30 text-white'
               }`}
-              style={{ fontFamily: NATURE_FONT, fontSize: 13 }}>
-              {msg.text}
+              style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 13, letterSpacing: '0.01em' }}>
+              {msg.text.replace(/\*\*/g, '').replace(/\*/g, '')}
             </div>
           </div>
         ))}

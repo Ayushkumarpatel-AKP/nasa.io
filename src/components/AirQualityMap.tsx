@@ -158,6 +158,7 @@ export default function AirQualityMap({ searchLocation, onLocationSelect, fireHo
   const [mapLayer, setMapLayer] = useState<MapLayerType>("street");
   const [locationReport, setLocationReport] = useState<LocationReport | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const openWeatherKey = import.meta.env.VITE_OPENWEATHER_KEY;
   // NASA Token available for future satellite imagery integration
   // const nasaToken = import.meta.env.VITE_NASA_EARTHDATA_TOKEN;
@@ -470,28 +471,52 @@ export default function AirQualityMap({ searchLocation, onLocationSelect, fireHo
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-black/90 backdrop-blur-sm border border-white/20 rounded-lg p-3 z-10">
-        <p className="text-xs font-semibold text-white/90 mb-2">Air Quality Index</p>
-        <div className="space-y-1">
-          {[
-            { label: "Good", color: "#00e400", range: "0-50" },
-            { label: "Moderate", color: "#ffff00", range: "51-100" },
-            { label: "Unhealthy", color: "#ff7e00", range: "101-150" },
-            { label: "Very Unhealthy", color: "#ff0000", range: "151-200" },
-            { label: "Hazardous", color: "#7e0023", range: "201+" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-2 text-xs text-white/70">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: item.color }}
-              />
-              <span>{item.label}</span>
-              <span className="text-white/40">({item.range})</span>
+      {/* Legend / Info Button */}
+      <div className="absolute bottom-4 left-4 z-10">
+        {!showLegend ? (
+          <button
+            onClick={() => setShowLegend(true)}
+            className="flex items-center gap-2 bg-black/90 hover:bg-black/100 backdrop-blur-sm border border-emerald-500/40 text-emerald-300 rounded-full px-3 py-2 text-xs font-semibold shadow-lg shadow-black/50 transition-all hover:scale-105"
+            title="Show Air Quality Index Info"
+          >
+            <span className="w-5 h-5 rounded-full bg-emerald-900/80 border border-emerald-400/60 flex items-center justify-center text-[11px] font-bold text-emerald-300">ℹ️</span>
+            <span>AQI Scale</span>
+          </button>
+        ) : (
+          <div className="bg-black/95 backdrop-blur-md border border-white/20 rounded-xl p-3.5 shadow-2xl max-w-[230px] animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>ℹ️</span> Air Quality Index
+              </span>
+              <button
+                onClick={() => setShowLegend(false)}
+                className="text-white/60 hover:text-white text-base font-bold leading-none px-1"
+                aria-label="Close AQI Info"
+              >
+                ×
+              </button>
             </div>
-          ))}
-        </div>
-        <p className="text-[10px] text-white/40 mt-2">💡 Click anywhere on map for detailed report</p>
+            <div className="space-y-1.5">
+              {[
+                { label: "Good", color: "#00e400", range: "0-50" },
+                { label: "Moderate", color: "#ffff00", range: "51-100" },
+                { label: "Unhealthy", color: "#ff7e00", range: "101-150" },
+                { label: "Very Unhealthy", color: "#ff0000", range: "151-200" },
+                { label: "Hazardous", color: "#7e0023", range: "201+" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2 text-xs text-white/80">
+                  <div
+                    className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="flex-1 font-medium">{item.label}</span>
+                  <span className="text-white/40 text-[11px]">({item.range})</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-emerald-400/75 mt-2.5 pt-2 border-t border-white/10">💡 Click map for location report</p>
+          </div>
+        )}
       </div>
 
       {/* Live indicator */}

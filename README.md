@@ -9,6 +9,43 @@
 
 ---
 
+## Short Description
+
+NASA.io is a real-time environmental dashboard that tracks wildfires, air quality, and weather data using NASA and OpenWeatherMap APIs and machine learning algorithms.
+
+---
+
+## 📘 Research & Data Collection Experience
+
+I worked on this project as a research data collector and researcher, focused on finding, cleaning, and organizing environmental data so the dashboard could show accurate results.
+
+### My work
+
+- Collected wildfire, weather, and air quality data
+- Cleaned and normalized API responses
+- Checked coordinates, timestamps, AQI, brightness, and confidence values
+- Kept fallback data ready when APIs failed
+- Helped keep the dashboard data reliable and up to date
+
+### Links
+
+- Live Demo: https://nasa-io.vercel.app
+- GitHub: https://github.com/Ayushkumarpatel-AKP/nasa.io
+
+### Suggested commands
+
+```bash
+npm install
+npm run dev
+npm run build
+```
+
+### Short project summary
+
+NASA.io is an environmental intelligence dashboard for fire monitoring, air quality tracking, and weather insights.
+
+---
+
 ## ✨ Key Features
 
 ### 🛰️ **NASA EONET Integration** (Real-Time Satellite Data)
