@@ -22,7 +22,6 @@ interface Message {
   ts: number;
 }
 
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const WAQI_TOKEN = import.meta.env.VITE_WAQI_TOKEN;
 const NATURE_FONT = "'Playfair Display', Georgia, serif";
 
@@ -36,12 +35,8 @@ function aqiColor(aqi: number) {
   return             { bg: '#3f0017', ring: '#f43f5e', label: 'Hazardous',       emoji: '💀' };
 }
 
-/* ─── Call LLM (OpenRouter / Gemini) ───────────────────────── */
+/* ─── Call the server-side NatureBot endpoint ──────────────── */
 async function askGemini(messages: { role: string; parts: { text: string }[] }[]): Promise<string> {
-  if (!GEMINI_KEY) {
-    throw new Error('API Key missing');
-  }
-
   const systemPrompt = `You are Terra — an environmental & weather AI assistant on NASA.io.
 
 CRITICAL RESPONSE FORMAT & RULES:
@@ -62,82 +57,18 @@ Key Factors:
 
 Keep layout clean, scannable, and extremely professional without markdown special characters like **.`;
 
-  // Check if OpenRouter key (sk-or-v1-...) or standard Google Gemini key
-  const isOpenRouter = GEMINI_KEY.startsWith('sk-or-');
+  const response = await fetch('/api/naturebot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, systemPrompt }),
+  });
 
-  if (isOpenRouter) {
-    // OpenRouter API format (OpenAI compatible)
-    const formattedMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map(m => ({
-        role: m.role === 'model' ? 'assistant' : m.role,
-        content: m.parts.map(p => p.text).join('\n')
-      }))
-    ];
-
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GEMINI_KEY}`,
-        'HTTP-Referer': import.meta.env.VITE_APP_URL || 'https://nasa-io-eight.vercel.app',
-        'X-Title': 'NASA.io Terra Bot'
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: formattedMessages,
-        temperature: 0.5,
-        max_tokens: 300
-      })
-    });
-
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      console.error('OpenRouter error:', res.status, errText);
-      // Fallback attempt with a widely available free model if gemini fails
-      const fallbackRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GEMINI_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'openrouter/auto',
-          messages: formattedMessages,
-          temperature: 0.5,
-          max_tokens: 300
-        })
-      });
-
-      if (!fallbackRes.ok) {
-        throw new Error(`OpenRouter API error: ${res.status}`);
-      }
-      const fallbackData = await fallbackRes.json();
-      return fallbackData.choices?.[0]?.message?.content ?? 'I could not read the winds. Please try again.';
-    }
-
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content ?? 'I could not read the winds. Please try again.';
-  } else {
-    // Native Google Gemini API format
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: messages,
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          generationConfig: { temperature: 0.85, maxOutputTokens: 512 }
-        }),
-      }
-    );
-    if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'I could not read the winds. Please try again.';
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `NatureBot API error: ${response.status}`);
   }
+
+  return data.reply ?? 'I could not read the winds. Please try again.';
 }
 
 /* ─── Fetch WAQI ──────────────────────────────────────────── */

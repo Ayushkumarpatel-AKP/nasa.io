@@ -388,12 +388,15 @@ VITE_FIREBASE_API_KEY=your_key_here
 VITE_OPENWEATHER_KEY=your_key_here
 VITE_FIREBASE_PROJECT_ID=your_project_here
 VITE_APP_URL=http://localhost:5173
+# Server-only key for the Vercel NatureBot function; do not use the VITE_ prefix
+OPENROUTER_API_KEY=your_openrouter_key_here
 ```
 
 **For Vercel Production:**
 1. Go to Project Settings > Environment Variables
-2. Add each VITE_ variable
-3. Redeploy project
+2. Add each required VITE_ variable and `OPENROUTER_API_KEY`
+3. Keep `OPENROUTER_API_KEY` server-only and never commit it to GitHub
+4. Redeploy project
 
 ### Security Audit Report
 

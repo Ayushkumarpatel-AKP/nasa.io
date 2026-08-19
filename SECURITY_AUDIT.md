@@ -272,7 +272,8 @@ VITE_APP_URL=http://localhost:5173
    - VITE_FIREBASE_API_KEY
    - VITE_FIREBASE_PROJECT_ID
    - VITE_OPENWEATHER_KEY
-   - VITE_APP_URL=https://nasa-io.vercel.app
+  - VITE_APP_URL=https://nasa-io.vercel.app
+  - OPENROUTER_API_KEY (server-only; do not use the VITE_ prefix)
 3. Redeploy
 ```
 
